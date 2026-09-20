@@ -18,4 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # El comando para arrancar Gunicorn (servidor de producción)
-CMD ["gunicorn", "NexoRetail.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Ejecuta las migraciones compartidas y luego enciende el servidor
+CMD python manage.py migrate_schemas --shared && python init_db.py && gunicorn NexoRetail.wsgi:application --bind 0.0.0.0:8000
