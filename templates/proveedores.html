@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 pb-10">
+    <div>
+        <h2 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">Proveedores</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Directorio de proveedores y casas de materiales.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-gray-800 dark:text-white text-lg">Listado de Proveedores</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-gray-700/50 text-gray-400 dark:text-gray-300 text-xs uppercase tracking-wider">
+                            <th class="py-3 px-6 font-semibold">Nombre</th>
+                            <th class="py-3 px-6 font-semibold">CUIT</th>
+                            <th class="py-3 px-6 font-semibold">Correo / Teléfono</th>
+                            <th class="py-3 px-6 font-semibold">Dirección</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50 text-sm">
+                        {% for p in proveedores %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                            <!-- En la tabla de proveedores.html, cambia la celda del nombre por esto: -->
+                            <td class="py-4 px-6 font-bold text-accent hover:underline">
+                                <a href="{% url 'proveedor_detalle' p.id %}">{{ p.nombre }}</a>
+                            </td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ p.cuit|default:"N/D" }}</td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                                <div>{{ p.correo|default:"" }}</div>
+                                <div class="text-xs text-gray-400">{{ p.telefono|default:"" }}</div>
+                            </td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ p.direccion|default:"N/D" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-gray-400 italic">No hay proveedores registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 h-fit">
+            <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Nuevo Proveedor</h3>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<p class="text-rose-500 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="w-full py-2.5 bg-accent text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all mt-2">Guardar Proveedor</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

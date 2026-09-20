@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    
+    <!-- Cabecera -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Inventario</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona tus productos, precios y stock.</p>
+        </div>
+        <!-- Botón que llama al modal vía HTMX -->
+        <button hx-get="{% url 'producto_crear' %}" 
+                hx-target="#modal-container" 
+                hx-swap="innerHTML"
+                class="px-5 py-2 bg-accent text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95">
+            + Nuevo Producto
+        </button>
+    </div>
+
+    <!-- Barra de Filtros (HTMX) -->
+<form class="flex flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors"
+      hx-get="{% url 'inventario' %}" 
+      hx-target="#tabla-cuerpo" 
+      hx-trigger="input from:input delay:500ms, change from:select">
+    
+    <div class="flex-1">
+        <label class="sr-only">Buscar Producto</label>
+        <input type="text" name="q" placeholder="Buscar por SKU o Nombre..." value="{{ query }}"
+               class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white focus:ring-2 focus:ring-accent outline-none transition-colors">
+    </div>
+    
+    <div class="w-full md:w-48">
+        <select name="categoria" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white focus:ring-2 focus:ring-accent outline-none transition-colors">
+            <option value="">Categorías (Todas)</option>
+            {% for cat in categorias %}
+                <option value="{{ cat.id }}" {% if categoria_seleccionada == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="w-full md:w-48">
+        <select name="subcategoria" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white focus:ring-2 focus:ring-accent outline-none transition-colors">
+            <option value="">Subcategorías (Todas)</option>
+            {% for sub in subcategorias %}
+                <option value="{{ sub.id }}" {% if subcategoria_seleccionada == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="w-full md:w-48">
+        <select name="stock" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white focus:ring-2 focus:ring-accent outline-none transition-colors">
+            <option value="">Estado Stock (Todos)</option>
+            <option value="critico" {% if stock_seleccionado == 'critico' %}selected{% endif %}>Stock Crítico</option>
+            <option value="normal" {% if stock_seleccionado == 'normal' %}selected{% endif %}>Stock Normal</option>
+        </select>
+    </div>
+</form>
+
+    <!-- Contenedor de la Tabla -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-6 py-4 font-medium">SKU / Producto</th>
+                        <th class="px-6 py-4 font-medium">Categoría</th>
+                        <th class="px-6 py-4 font-medium text-right">Precio Base</th>
+                        <th class="px-6 py-4 font-medium text-center">Stock</th>
+                        <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <!-- El body de la tabla escucha el evento refreshTablaProductos para auto-actualizarse -->
+                <tbody id="tabla-cuerpo" 
+                       class="divide-y divide-gray-100 dark:divide-gray-700"
+                       hx-get="{% url 'inventario' %}" 
+                       hx-trigger="refreshTablaProductos from:body">
+                    {% include 'partials/tabla_productos.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor donde se inyectará el modal de creación -->
+<div id="modal-container"></div>
+
+<!-- Script global para escuchar la orden de cerrar el modal desde Django -->
+<script>
+    document.body.addEventListener('closeModal', function() {
+        document.getElementById('modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

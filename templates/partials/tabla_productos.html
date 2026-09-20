@@ -1,0 +1,70 @@
+{% for producto in page_obj %}
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+    <td class="px-6 py-4">
+        <div class="flex flex-col">
+            <span class="font-bold text-gray-800 dark:text-gray-200">{{ producto.nombre }}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ producto.sku|default:"Sin SKU" }}</span>
+        </div>
+    </td>
+    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+        {{ producto.categoria.nombre|default:"-" }}
+    </td>
+    <td class="px-6 py-4 text-right">
+        <span class="font-semibold text-gray-800 dark:text-gray-200">${{ producto.precio }}</span>
+    </td>
+    <td class="px-6 py-4 text-center">
+        <!-- Badge de Stock dinámico -->
+        {% if producto.stock_actual <= producto.stock_critico %}
+            <span class="px-2.5 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full">
+                {{ producto.stock_actual }} {{ producto.unidad_medida }}
+            </span>
+        {% else %}
+            <span class="px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full">
+                {{ producto.stock_actual }} {{ producto.unidad_medida }}
+            </span>
+        {% endif %}
+    </td>
+    <td class="px-6 py-4 text-right text-sm">
+    <button hx-get="{% url 'producto_editar' producto.id %}" 
+            hx-target="#modal-container" 
+            hx-swap="innerHTML"
+            class="text-accent hover:text-blue-800 dark:hover:text-blue-400 font-medium mr-3 transition-colors cursor-pointer">
+        Editar
+    </button>
+</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+        No se encontraron productos con esos filtros.
+    </td>
+</tr>
+{% endfor %}
+
+<!-- Paginación (Se incluye dentro del partial para que se actualice al filtrar) -->
+{% if page_obj.has_other_pages %}
+<tr class="bg-gray-50 dark:bg-gray-900/30">
+    <td colspan="5" class="px-6 py-4">
+        <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                    <button hx-get="{% url 'inventario' %}?page={{ page_obj.previous_page_number }}&q={{ query }}&categoria={{ categoria_seleccionada }}" 
+                            hx-target="#tabla-cuerpo" 
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        Anterior
+                    </button>
+                {% endif %}
+                
+                {% if page_obj.has_next %}
+                    <button hx-get="{% url 'inventario' %}?page={{ page_obj.next_page_number }}&q={{ query }}&categoria={{ categoria_seleccionada }}" 
+                            hx-target="#tabla-cuerpo" 
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        Siguiente
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </td>
+</tr>
+{% endif %}

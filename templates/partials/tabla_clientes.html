@@ -1,0 +1,71 @@
+{% for cliente in page_obj %}
+<!-- Agregamos cursor-pointer y el evento onclick a la fila -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-0 cursor-pointer"
+    onclick="window.location='{% url 'cliente_detalle' cliente.id %}'">
+    
+    <!-- Nombre / Razón Social -->
+    <td class="px-6 py-4">
+        <div class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ cliente.nombre }}</div>
+        <div class="text-xs font-mono text-gray-500">{{ cliente.cuit|default:"Sin CUIT" }}</div>
+    </td>
+    
+    <!-- Condición Fiscal -->
+    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+        {{ cliente.get_condicion_fiscal_display|default:"Consumidor Final" }}
+    </td>
+    
+    <!-- Contacto -->
+    <td class="px-6 py-4">
+        <div class="text-sm text-gray-800 dark:text-gray-200">{{ cliente.telefono|default:"-" }}</div>
+        <div class="text-xs text-gray-500">{{ cliente.email|default:"-" }}</div>
+    </td>
+    
+    <!-- Acciones -->
+    <!-- Agregamos onclick="event.stopPropagation();" para que si el usuario hace clic en "Editar", no lo envíe al detalle -->
+    <td class="px-6 py-4 text-right" onclick="event.stopPropagation();">
+        <button hx-get="{% url 'cliente_editar' cliente.id %}" 
+                hx-target="#modal-container" 
+                hx-swap="innerHTML"
+                class="inline-flex items-center justify-center px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent transition-colors shadow-sm">
+            Editar
+        </button>
+    </td>
+</tr>
+
+{% empty %}
+<tr>
+    <td colspan="4" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+        <div class="flex flex-col items-center justify-center">
+            <span class="text-4xl mb-3">👥</span>
+            <p class="text-base font-medium">No se encontraron clientes</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+
+<!-- Paginación -->
+{% if page_obj.has_other_pages %}
+<tr class="bg-gray-50 dark:bg-gray-900/30">
+    <td colspan="4" class="px-6 py-4">
+        <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                    <button hx-get="{% url 'clientes' %}?page={{ page_obj.previous_page_number }}&q={{ query }}" 
+                            hx-target="#tabla-cuerpo" 
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        Anterior
+                    </button>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <button hx-get="{% url 'clientes' %}?page={{ page_obj.next_page_number }}&q={{ query }}" 
+                            hx-target="#tabla-cuerpo" 
+                            class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        Siguiente
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </td>
+</tr>
+{% endif %}

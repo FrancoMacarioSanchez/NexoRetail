@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 pb-12">
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <h2 class="text-2xl font-extrabold text-gray-800 dark:text-white mb-2">Concretar Venta y Logística</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Presupuesto asociado: <strong>#{{ presupuesto.id|stringformat:"05d" }}</strong> (Subtotal productos: ${{ presupuesto.total }})</p>
+
+        <form method="POST" action="{% url 'presupuesto_convertir' presupuesto.id %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Bloque 1: Datos Generales y Cobro -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Tipo de Factura</label>
+                    {{ form.tipo_factura }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Punto de Venta</label>
+                    {{ form.punto_venta }}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Receptor / Cliente</label>
+                    {{ form.receptor }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Medio de Pago</label>
+                    {{ form.medio_pago }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Estado de Cobranza</label>
+                    {{ form.estado_pago }}
+                </div>
+            </div>
+
+            <hr class="border-gray-100 dark:border-gray-700">
+
+            <!-- Bloque 2: Logística y Envíos (Vinculado a tu modelo Envio) -->
+            <div class="space-y-4 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-xl border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    {{ form.requiere_envio }}
+                    <label class="text-sm font-bold text-gray-800 dark:text-white cursor-pointer">¿Requiere envío a domicilio / obra?</label>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Dirección de Entrega</label>
+                        {{ form.direccion_entrega }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Fecha Programada</label>
+                        {{ form.fecha_programada }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Costo de Envío ($)</label>
+                        {{ form.costo_envio }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Vehículo / Flota</label>
+                        {{ form.vehiculo }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Chofer Asignado</label>
+                        {{ form.chofer }}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Observaciones</label>
+                        {{ form.observaciones_envio }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <a href="{% url 'presupuesto_detalle' presupuesto.id %}" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold text-center hover:bg-gray-200 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 shadow-md transition">
+                    Facturar, Programar Envío y Descontar Stock 🚀
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% if productos %}
+    {% for producto in productos %}
+        <div class="p-3 hover:bg-gray-100 cursor-pointer text-sm border-b border-gray-100 transition-colors" 
+             onclick="agregarAlCarrito({{ producto.id }}, '{{ producto.nombre|escapejs }}', {{ producto.precio }}, {{ producto.alicuota }})">
+            <span class="font-bold text-gray-700">{{ producto.sku|default:"S/N" }}</span> - {{ producto.nombre }} 
+            <span class="text-blue-600 font-bold float-right">${{ producto.precio }}</span>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="p-3 text-sm text-gray-500 text-center italic">
+        No se encontraron productos.
+    </div>
+{% endif %}

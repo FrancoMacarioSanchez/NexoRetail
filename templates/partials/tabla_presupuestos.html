@@ -1,0 +1,33 @@
+{% for presupuesto in page_obj %}
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+    <td class="px-6 py-4">
+        <div class="font-bold text-gray-800 dark:text-white">#{{ presupuesto.id|stringformat:"05d" }}</div>
+        <div class="text-xs text-gray-500">{{ presupuesto.fecha_creacion|date:"d/m/Y" }}</div>
+    </td>
+    <td class="px-6 py-4">
+        <div class="font-medium text-gray-800 dark:text-gray-200">{{ presupuesto.cliente.nombre }}</div>
+        <div class="text-xs text-gray-500">CUIT: {{ presupuesto.cliente.cuit|default:"-" }}</div>
+    </td>
+    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+        {{ presupuesto.fecha_entrega|date:"d/m/Y"|default:"A coordinar" }}
+    </td>
+    <td class="px-6 py-4">
+        <!-- Puedes cambiar el color según el estado real si agregas un campo 'estado' al modelo -->
+        <span class="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs rounded-full font-bold">
+            Vigente
+        </span>
+    </td>
+    <td class="px-6 py-4 text-right font-bold text-gray-800 dark:text-white">
+        ${{ presupuesto.total }}
+    </td>
+    <td class="px-6 py-4 text-center">
+        <a href="{% url 'presupuesto_detalle' presupuesto.id %}" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            Ver Detalle
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No se encontraron presupuestos emitidos.</td>
+</tr>
+{% endfor %}

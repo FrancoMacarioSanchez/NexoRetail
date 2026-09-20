@@ -1,0 +1,145 @@
+{% extends 'base.html' %} {% block content %}
+<div class="space-y-6 pb-10">
+  <div>
+    <h2
+      class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight"
+    >
+      Categorías y Subcategorías
+    </h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      Organización jerárquica del inventario de productos.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Listado (2 columnas) -->
+    <div
+      class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+    >
+      <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">
+        Árbol de Categorías
+      </h3>
+      <div class="space-y-4">
+        <!-- Reemplaza la sección del bucle de categorías en categorias.html con esto: -->
+        {% for cat in categorias %}
+        <div
+          class="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-100 dark:border-gray-700 flex justify-between items-start"
+        >
+          <div>
+            <h4 class="font-bold text-accent text-base mb-2">
+              📁 {{ cat.nombre }}
+            </h4>
+            <ul
+              class="pl-6 space-y-1.5 text-sm text-gray-600 dark:text-gray-300"
+            >
+              {% for sub in cat.subcategorias.all %}
+              <li class="list-disc flex items-center justify-between gap-4">
+                <span>🔹 {{ sub.nombre }}</span>
+                <form
+                  action="{% url 'subcategoria_eliminar' sub.id %}"
+                  method="POST"
+                  class="inline"
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="text-rose-500 hover:text-rose-700 text-xs font-bold px-1"
+                    title="Eliminar subcategoría"
+                  >
+                    ✕
+                  </button>
+                </form>
+              </li>
+              {% empty %}
+              <li class="italic text-xs text-gray-400">
+                Sin subcategorías registradas.
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <form
+            action="{% url 'categoria_eliminar' cat.id %}"
+            method="POST"
+            onsubmit="
+              return confirm(
+                '¿Eliminar esta categoría borrará también sus subcategorías asociadas?',
+              );
+            "
+          >
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="text-rose-500 hover:text-rose-700 font-bold text-xs bg-rose-50 dark:bg-rose-900/20 px-2.5 py-1 rounded-lg transition"
+            >
+              Eliminar Categoría
+            </button>
+          </form>
+        </div>
+        {% empty %}
+        <p class="text-center text-gray-400 italic py-6">
+          No hay categorías cargadas.
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Formularios (1 columna) -->
+    <div class="space-y-6">
+      <!-- Form Categoria -->
+      <div
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+      >
+        <h3 class="font-bold text-gray-800 dark:text-white text-base mb-3">
+          Nueva Categoría
+        </h3>
+        <form method="POST" class="space-y-3">
+          {% csrf_token %} {% for field in cat_form %}
+          <div>
+            <label
+              class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1"
+              >{{ field.label }}</label
+            >
+            {{ field }}
+          </div>
+          {% endfor %}
+          <button
+            type="submit"
+            name="btn_categoria"
+            class="w-full py-2 bg-accent text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all"
+          >
+            Crear Categoría
+          </button>
+        </form>
+      </div>
+
+      <!-- Form Subcategoria -->
+      <div
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+      >
+        <h3 class="font-bold text-gray-800 dark:text-white text-base mb-3">
+          Nueva Subcategoría
+        </h3>
+        <form method="POST" class="space-y-3">
+          {% csrf_token %} {% for field in sub_form %}
+          <div>
+            <label
+              class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1"
+              >{{ field.label }}</label
+            >
+            {{ field }}
+          </div>
+          {% endfor %}
+          <button
+            type="submit"
+            name="btn_subcategoria"
+            class="w-full py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all"
+          >
+            Crear Subcategoría
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

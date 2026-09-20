@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Botonera superior -->
+    <div class="flex justify-between items-center print:hidden">
+        <a href="{% url 'ventas' %}" class="text-sm font-medium text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors">
+            &larr; Volver a Ventas
+        </a>
+        <button onclick="window.print()" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition-colors shadow-sm">
+            🖨️ Imprimir Comprobante
+        </button>
+        <a href="{% url 'descargar_factura_pdf' venta.id %}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
+    📄 Descargar Factura PDF
+</a>
+    </div>
+
+    <!-- Contenedor del Comprobante (Factura) -->
+    <div class="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 transition-colors">
+        
+        <!-- Cabecera de la Factura -->
+        <div class="flex flex-col md:flex-row justify-between items-start border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <div>
+                <h1 class="text-3xl font-black text-accent uppercase">{{ venta.get_tipo_factura_display }}</h1>
+                <p class="text-sm text-gray-500 mt-1">Nº Comprobante: <span class="font-mono font-bold text-gray-800 dark:text-gray-300">{{ venta.punto_venta }}-{{ venta.id|stringformat:"08d" }}</span></p>
+                <p class="text-sm text-gray-500">Fecha de emisión: {{ venta.fecha|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="text-left md:text-right mt-4 md:mt-0">
+                <h2 class="text-xl font-bold">Corralón Mayorista</h2>
+                <p class="text-sm text-gray-500">CUIT: 30-12345678-9</p>
+                <p class="text-sm text-gray-500">Av. San Martín 1234, Buenos Aires</p>
+            </div>
+        </div>
+
+        <!-- Datos del Cliente y Vendedor -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg transition-colors">
+            <div>
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Receptor</h3>
+                <p class="font-medium text-lg">{{ venta.receptor }}</p>
+                {% if venta.cliente %}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Condición: {{ venta.cliente.get_condicion_fiscal_display }}</p>
+                    {% if venta.cliente.cuit_dni %}<p class="text-sm text-gray-600 dark:text-gray-400">CUIT/DNI: {{ venta.cliente.cuit_dni }}</p>{% endif %}
+                {% else %}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Consumidor Final</p>
+                {% endif %}
+            </div>
+            <div class="md:text-right">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Vendedor</h3>
+                <p class="font-medium">{{ venta.vendedor.username|default:"Sistema" }}</p>
+                {% if venta.presupuesto %}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Ref. Presupuesto Nº {{ venta.presupuesto.id }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Módulo de Envío / Logística -->
+        <div class="mb-8 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 print:hidden transition-colors">
+            <div class="bg-gray-50 dark:bg-gray-800/80 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase flex items-center gap-2">
+                    🚚 Logística y Envío
+                </h3>
+                <button hx-get="{% url 'envio_crear_editar' venta.id %}" 
+                        hx-target="#modal-container" 
+                        hx-swap="innerHTML"
+                        class="px-3 py-1 bg-accent text-white text-xs font-bold rounded hover:bg-blue-700 transition-colors shadow-sm">
+                    {% if venta.envio %}Actualizar Envío{% else %}Programar Envío{% endif %}
+                </button>
+            </div>
+            
+            <div class="p-4">
+                {% if venta.envio %}
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <span class="block text-xs text-gray-500 uppercase">Estado</span>
+                            <span class="font-bold {% if venta.envio.estado == 'D' %}text-emerald-600{% elif venta.envio.estado == 'C' %}text-blue-600{% else %}text-orange-500{% endif %}">
+                                {{ venta.envio.get_estado_display }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-gray-500 uppercase">Fecha Prog.</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">{{ venta.envio.fecha_programada|date:"d/m/Y"|default:"A coordinar" }}</span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="block text-xs text-gray-500 uppercase">Dirección de Entrega</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">{{ venta.envio.direccion_entrega }}</span>
+                        </div>
+                        {% if venta.envio.chofer %}
+                        <div>
+                            <span class="block text-xs text-gray-500 uppercase">Transporte</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">{{ venta.envio.chofer }} ({{ venta.envio.patente|default:"S/P" }})</span>
+                        </div>
+                        {% endif %}
+                        {% if venta.envio.observaciones %}
+                        <div class="col-span-2 md:col-span-4 mt-2">
+                            <span class="block text-xs text-gray-500 uppercase">Observaciones</span>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ venta.envio.observaciones }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500 text-center py-2">No hay envío programado. El cliente retira por sucursal.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tabla de Artículos -->
+        <div class="overflow-x-auto mb-8">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b-2 border-gray-200 dark:border-gray-700 text-sm">
+                        <th class="py-2 font-bold whitespace-nowrap">Cód/Producto</th>
+                        <th class="py-2 text-right font-bold">Cantidad</th>
+                        <th class="py-2 text-right font-bold whitespace-nowrap">Precio Unit.</th>
+                        <th class="py-2 text-right font-bold">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    {% for det in detalles %}
+                    <tr class="text-sm">
+                        <td class="py-3">
+                            <p class="font-medium">{{ det.producto.nombre }}</p>
+                        </td>
+                        <td class="py-3 text-right">{{ det.cantidad|floatformat:2 }}</td>
+                        <td class="py-3 text-right">${{ det.precio_unitario_historico|intcomma }}</td>
+                        <td class="py-3 text-right font-medium text-gray-900 dark:text-gray-100">
+                            ${% widthratio det.precio_unitario_historico 1 det.cantidad as subtotal_linea %}{{ subtotal_linea|intcomma }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-4 text-center text-gray-500">No hay detalles registrados para esta venta.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="flex justify-end border-t-2 border-gray-200 dark:border-gray-700 pt-4">
+            <div class="w-full md:w-1/2 lg:w-1/3 space-y-2 text-sm">
+                
+                <!-- Desglose de IVA dinámico desde el JSONField -->
+                {% for alicuota, monto in venta.iva_total_discriminado.items %}
+                <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                    <span>IVA ({{ alicuota }}%)</span>
+                    <span>${{ monto|floatformat:2|intcomma }}</span>
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-between text-xl font-black text-gray-900 dark:text-white pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <span>TOTAL</span>
+                    <span>${{ venta.totales|intcomma }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie de página / CAE -->
+        {% if venta.cae %}
+        <div class="mt-12 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-end text-xs text-gray-500 font-mono">
+            <div>
+                <p>CAE: <span class="font-bold text-gray-800 dark:text-gray-300">{{ venta.cae }}</span></p>
+                <p>Vto. CAE: {{ venta.fecha_vencimiento_cae|date:"d/m/Y" }}</p>
+            </div>
+            <!-- Espacio reservado para el código de barras AFIP si es necesario imprimir factura real -->
+            <div class="text-right uppercase font-bold text-gray-400">
+                Comprobante Autorizado
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Contenedor vacío donde HTMX inyectará el modal de Logística -->
+<div id="modal-container"></div>
+{% endblock %}

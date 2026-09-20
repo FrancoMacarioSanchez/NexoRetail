@@ -1,0 +1,101 @@
+{% load humanize %}
+
+{% for venta in page_obj %}
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-0">
+    <!-- Fecha -->
+    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+        {{ venta.fecha|date:"d/m/Y H:i" }}
+    </td>
+    
+    <!-- Comprobante -->
+    <td class="px-6 py-4">
+        <div class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ venta.get_tipo_factura_display }}</div>
+        <div class="text-xs font-mono text-gray-500">{{ venta.punto_venta }}-{{ venta.id|stringformat:"08d" }}</div>
+    </td>
+    
+    <!-- Receptor / Cliente -->
+    <td class="px-6 py-4">
+        <div class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ venta.receptor }}</div>
+        {% if venta.cliente %}
+            <div class="text-xs text-gray-500">{{ venta.cliente.get_condicion_fiscal_display }}</div>
+        {% endif %}
+    </td>
+    
+    <!-- Total -->
+    <td class="px-6 py-4 text-right text-sm font-bold text-gray-800 dark:text-gray-200">
+        ${{ venta.totales|intcomma }}
+    </td>
+    
+    <!-- Vendedor -->
+    <td class="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        {{ venta.vendedor.username|default:"Sistema" }}
+    </td>
+    
+    <!-- Logística / Envío -->
+    <td class="px-6 py-4 text-center">
+        {% if venta.envio %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium 
+                {% if venta.envio.estado == 'D' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400
+                {% elif venta.envio.estado == 'C' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
+                {% elif venta.envio.estado == 'X' %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
+                {% else %}bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400{% endif %}">
+                {{ venta.envio.get_estado_display }}
+            </span>
+        {% else %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                Retira
+            </span>
+        {% endif %}
+    </td>
+    
+    <!-- Acciones -->
+    <td class="px-6 py-4 text-right">
+        <a href="{% url 'venta_detalle' venta.id %}" class="inline-flex items-center justify-center px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent transition-colors shadow-sm">
+            Ver Detalle
+        </a>
+    </td>
+</tr>
+
+{% empty %}
+<tr>
+    <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+        <div class="flex flex-col items-center justify-center">
+            <span class="text-4xl mb-3">📄</span>
+            <p class="text-base font-medium">No se encontraron ventas</p>
+            <p class="text-sm mt-1">Intenta ajustando los filtros de búsqueda superior.</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+
+<!-- Fila de Paginación Integrada (Ocupa todo el ancho de la tabla) -->
+{% if page_obj.paginator.num_pages > 1 %}
+<tr class="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+    <td colspan="7" class="px-6 py-4">
+        <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+            <div>
+                Mostrando página <span class="font-bold text-gray-800 dark:text-gray-200">{{ page_obj.number }}</span> de <span class="font-bold text-gray-800 dark:text-gray-200">{{ page_obj.paginator.num_pages }}</span>
+            </div>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                    <button hx-get="{% url 'ventas' %}?page={{ page_obj.previous_page_number }}" 
+                            hx-include="#form-filtros-ventas"
+                            hx-target="#tabla-cuerpo" 
+                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white transition-colors font-medium shadow-sm">
+                        &larr; Anterior
+                    </button>
+                {% endif %}
+                
+                {% if page_obj.has_next %}
+                    <button hx-get="{% url 'ventas' %}?page={{ page_obj.next_page_number }}" 
+                            hx-include="#form-filtros-ventas"
+                            hx-target="#tabla-cuerpo" 
+                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white transition-colors font-medium shadow-sm">
+                        Siguiente &rarr;
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </td>
+</tr>
+{% endif %}

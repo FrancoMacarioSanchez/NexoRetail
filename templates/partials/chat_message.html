@@ -1,0 +1,16 @@
+<!-- Burbuja del Usuario (Derecha) -->
+<div class="flex justify-end chat-fade-in">
+    <div class="bg-primary dark:bg-accent text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-sm">
+        {{ mensaje_usuario }}
+    </div>
+</div>
+
+<!-- Burbuja de la IA (Izquierda) -->
+<div class="flex items-start gap-2 chat-fade-in" style="animation-delay: 150ms; animation-fill-mode: both;">
+    <div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center font-bold text-xs shrink-0">IA</div>
+    
+    <div class="bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-tl-none shadow-sm text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 max-w-[85%] text-sm">
+        <!-- Usamos |safe por si mandamos HTML desde Python, como un <a> tag con el link al presupuesto -->
+        {{ respuesta_bot|safe }}
+    </div>
+</div>

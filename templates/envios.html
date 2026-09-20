@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Panel Logístico</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Gestión de despachos y hoja de ruta.</p>
+        </div>
+        <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg text-sm font-bold transition flex items-center gap-2">
+            🖨️ Imprimir Hoja de Ruta
+        </button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-6 py-4 font-medium">Fecha</th>
+                        <th class="px-6 py-4 font-medium">Venta / Cliente</th>
+                        <th class="px-6 py-4 font-medium">Destino</th>
+                        <th class="px-6 py-4 font-medium">Vehículo / Chofer</th>
+                        <th class="px-6 py-4 font-medium text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for envio in envios %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <!-- Fecha -->
+                        <td class="px-6 py-4 text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {{ envio.fecha_programada|date:"d/m/Y" }}
+                        </td>
+                        
+                        <!-- Cliente y Venta -->
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-bold text-gray-800 dark:text-white">{{ envio.venta.cliente.nombre }}</div>
+                            <a href="{% url 'venta_detalle' envio.venta.id %}" class="text-xs text-accent hover:underline font-mono">
+                                #VTA-{{ envio.venta.id|stringformat:"06d" }}
+                            </a>
+                        </td>
+                        
+                        <!-- Destino -->
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-800 dark:text-gray-200 flex items-start gap-2">
+                                📍 <span class="max-w-xs truncate">{{ envio.direccion_entrega }}</span>
+                            </div>
+                            {% if envio.observaciones %}
+                                <div class="text-xs text-gray-500 mt-1">Nota: {{ envio.observaciones|truncatechars:40 }}</div>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Chofer -->
+                        <td class="px-6 py-4">
+                            {% if envio.chofer %}
+                                <div class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ envio.chofer.nombre }}</div>
+                                <div class="text-xs text-gray-500">{{ envio.vehiculo.patente }} ({{ envio.vehiculo.modelo }})</div>
+                            {% else %}
+                                <span class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Estado con HTMX -->
+                        <td class="px-6 py-4 text-center">
+                            {% include 'partials/badge_estado_envio.html' %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            No hay entregas pendientes para despachar. 🎉
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Presupuestos</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Historial de cotizaciones emitidas a clientes.</p>
+        </div>
+        <!-- En lugar de un modal, redirigimos a una pantalla completa para mayor comodidad -->
+        <a href="{% url 'pos_presupuesto' %}" 
+           class="px-5 py-2 bg-accent text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95">
+            + Nuevo Presupuesto
+        </a>
+    </div>
+
+    <form class="flex gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors"
+          hx-get="{% url 'presupuestos' %}" 
+          hx-target="#tabla-cuerpo" 
+          hx-trigger="input from:input delay:500ms">
+        <div class="flex-1">
+            <input type="text" name="q" placeholder="Buscar por N° o Cliente..." value="{{ query }}"
+                   class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-accent">
+        </div>
+    </form>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+    <thead>
+        <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+            <th class="px-6 py-4 font-medium">N° / Fecha</th>
+            <th class="px-6 py-4 font-medium">Cliente</th>
+            <th class="px-6 py-4 font-medium">Entrega Estimada</th>
+            <th class="px-6 py-4 font-medium">Estado</th>
+            <th class="px-6 py-4 font-medium text-right">Total</th>
+            <th class="px-6 py-4 font-medium text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="tabla-cuerpo" class="divide-y divide-gray-100 dark:divide-gray-700">
+        {% include 'partials/tabla_presupuestos.html' %}
+    </tbody>
+</table>
+    </div>
+</div>
+{% endblock %}

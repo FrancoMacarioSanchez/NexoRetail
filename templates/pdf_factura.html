@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1f2937;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .header {
+            width: 100%;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+        .table th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+        }
+        .text-right { text-align: right; }
+        .totales {
+            margin-top: 30px;
+            float: right;
+            width: 40%
+        }
+        .totales div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <h1 style="color: #2563eb; margin: 0;">{{ venta.get_tipo_factura_display }}</h1>
+                    <p style="margin: 5px 0; color: #6b7280;">Nº: {{ venta.punto_venta }}-{{ venta.id|stringformat:"08d" }}</p>
+                    <p style="margin: 0; color: #6b7280;">Fecha: {{ venta.fecha|date:"d/m/Y H:i" }}</p>
+                </td>
+                <td style="text-align: right;">
+                    <h3 style="margin: 0;">Corralón Mayorista</h3>
+                    <p style="margin: 5px 0; color: #6b7280;">CUIT: 30-12345678-9</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>Receptor:</strong> {{ venta.receptor }}<br>
+        {% if venta.cliente %}
+            <strong>Condición Fiscal:</strong> {{ venta.cliente.get_condicion_fiscal_display }}
+        {% endif %}
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th class="text-right">Cantidad</th>
+                <th class="text-right">Precio Unit.</th>
+                <th class="text-right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for det in detalles %}
+            <tr>
+                <td>{{ det.producto.nombre }}</td>
+                <td class="text-right">{{ det.cantidad|floatformat:2 }}</td>
+                <td class="text-right">${{ det.precio_unitario_historico }}</td>
+                <td class="text-right">
+                    ${% widthratio det.precio_unitario_historico 1 det.cantidad as sub_l %}{{ sub_l }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totales">
+        <div style="font-size: 18px; border-top: 2px solid #1f2937; padding-top: 10px;">
+            <span>TOTAL:</span>
+            <span>${{ venta.totales }}</span>
+        </div>
+    </div>
+
+    {% if venta.cae %}
+    <div style="position: fixed; bottom: 0; width: 100%; font-size: 11px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+        <p>CAE: {{ venta.cae }} | Vencimiento CAE: {{ venta.fecha_vencimiento_cae|date:"d/m/Y" }}</p>
+    </div>
+    {% endif %}
+</body>
+</html>

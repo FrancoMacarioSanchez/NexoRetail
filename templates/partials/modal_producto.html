@@ -1,0 +1,78 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity" id="producto-modal-overlay">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 relative">
+        
+        <!-- Botón Cerrar (X) -->
+        <button onclick="document.getElementById('modal-container').innerHTML=''" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <!-- Título Dinámico -->
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{{ titulo }}</h3>
+
+        <!-- Formulario HTMX con URL Dinámica (Crear vs Editar) -->
+        <form hx-post="{% if producto %}{% url 'producto_editar' producto.id %}{% else %}{% url 'producto_crear' %}{% endif %}" hx-target="#modal-container" id="producto-form">
+            {% csrf_token %}
+            
+            <!-- Campo oculto para saber si es Guardar y Continuar -->
+            <input type="hidden" name="continuar" id="id_continuar" value="false">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for field in form %}
+                    <div class="flex flex-col">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="text-xs text-red-500 mt-1">{{ field.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <div class="text-xs text-gray-500 flex items-center mr-auto">
+                    <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mr-2 font-mono">Enter</span> Guardar
+                    
+                    <!-- Solo mostramos el atajo de añadir otro si estamos creando uno nuevo -->
+                    {% if not producto %}
+                        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded ml-4 mr-2 font-mono">Shift + Enter</span> Guardar y añadir otro
+                    {% endif %}
+                </div>
+                
+                <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-accent hover:bg-blue-700 rounded-lg transition-colors shadow-md">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Foco automático en el primer campo de texto al abrir el modal
+    setTimeout(() => {
+        const firstInput = document.querySelector('#producto-form input[type="text"]');
+        if (firstInput) firstInput.focus();
+    }, 100);
+
+    // Manejo de atajos de teclado
+    document.getElementById('producto-form').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            // Evitamos que haga un submit normal y rompa la página (excepto si estamos en un textarea)
+            if (e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                
+                // Cambiar el valor del campo oculto según se presione Shift o no
+                if (e.shiftKey) {
+                    document.getElementById('id_continuar').value = 'true';
+                } else {
+                    document.getElementById('id_continuar').value = 'false';
+                }
+
+                // Ejecutamos el submit de forma nativa. HTMX interceptará esto mágicamente.
+                this.requestSubmit();
+            }
+        }
+    });
+</script>

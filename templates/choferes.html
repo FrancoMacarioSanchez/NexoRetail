@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 pb-10">
+    
+    <!-- Cabecera -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">Gestión de Choferes</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Control del personal de transporte y licencias habilitantes.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Tabla de Choferes (Ocupa 2 columnas) -->
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-gray-800 dark:text-white text-lg">Personal de Logística</h3>
+            </div>
+            
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-gray-700/50 text-gray-400 dark:text-gray-300 text-xs uppercase tracking-wider">
+                            <th class="py-3 px-6 font-semibold">Nombre y Apellido</th>
+                            <th class="py-3 px-6 font-semibold">DNI</th>
+                            <th class="py-3 px-6 font-semibold">Teléfono</th>
+                            <th class="py-3 px-6 font-semibold">Licencia</th>
+                            <th class="py-3 px-6 font-semibold">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50 text-sm">
+                        {% for c in choferes %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="py-4 px-6 font-bold text-gray-800 dark:text-white">{{ c.nombre }} {{ c.apellido }}</td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ c.dni }}</td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300">{{ c.telefono|default:"Sin registro" }}</td>
+                            <td class="py-4 px-6 text-gray-600 dark:text-gray-300 font-mono text-xs">{{ c.licencia_conducir|default:"N/D" }}</td>
+                            <td class="py-4 px-6">
+                                {% if c.activo %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                                        Activo
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400">
+                                        Inactivo
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-400 dark:text-gray-500 italic">
+                                No hay choferes cargados en el sistema.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Formulario de Registro (Ocupa 1 columna) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 h-fit">
+            <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Nuevo Chofer</h3>
+            
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                {{ form.non_field_errors }}
+
+                {% for field in form %}
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-rose-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="w-full py-2.5 bg-accent text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all transform active:scale-95 mt-2">
+                    Registrar Chofer
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

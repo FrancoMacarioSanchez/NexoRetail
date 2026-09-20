@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 pb-10 max-w-7xl mx-auto">
+    
+    <!-- Cabecera -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">Panel de Informes y Gerencia</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Análisis financiero, histórico de facturación y desempeño comercial.</p>
+        </div>
+
+        <!-- Filtro por Fechas -->
+        <form method="GET" class="flex flex-wrap items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center gap-1 px-2">
+                <span class="text-xs text-gray-400 font-semibold uppercase">Desde:</span>
+                <input type="date" name="fecha_init" value="{{ fecha_inicio }}" class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs rounded-lg px-2 py-1.5 text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-accent">
+            </div>
+            <div class="flex items-center gap-1 px-2">
+                <span class="text-xs text-gray-400 font-semibold uppercase">Hasta:</span>
+                <input type="date" name="fecha_fin" value="{{ fecha_fin }}" class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs rounded-lg px-2 py-1.5 text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-accent">
+            </div>
+            <button type="submit" class="px-4 py-1.5 bg-accent text-white text-xs font-bold rounded-xl hover:bg-blue-700 shadow-md transition-all">
+                Filtrar
+            </button>
+            {% if fecha_inicio or fecha_fin %}
+            <a href="{% url 'informes_gerencia' %}" class="text-xs text-rose-500 hover:underline px-2">Limpiar</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Tarjetas de Resumen del Período -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Facturación Total del Período</p>
+                <h3 class="text-3xl font-extrabold text-gray-800 dark:text-white mt-1">${{ resumen_periodo.total_facturado|default:"0.00" }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/40 text-accent rounded-2xl flex items-center justify-center text-xl font-bold">
+                💵
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Total de Operaciones / Ventas</p>
+                <h3 class="text-3xl font-extrabold text-gray-800 dark:text-white mt-1">{{ resumen_periodo.cantidad_ventas|default:"0" }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold">
+                📊
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablas de Datos (Diarios y Mensuales) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Resumen Diario -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-gray-800 dark:text-white text-lg">Resumen de Ventas Diarias</h3>
+            </div>
+            <div class="overflow-x-auto flex-1 max-h-96">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-300 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-6 font-semibold">Fecha</th>
+                            <th class="py-3 px-6 font-semibold">Operaciones</th>
+                            <th class="py-3 px-6 font-semibold text-right">Total Facturado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50 text-sm">
+                        {% for fila in ventas_diarias %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="py-3.5 px-6 font-medium text-gray-800 dark:text-white">{{ fila.dia|date:"d/m/Y" }}</td>
+                            <td class="py-3.5 px-6 text-gray-600 dark:text-gray-300">{{ fila.cantidad }}</td>
+                            <td class="py-3.5 px-6 font-bold text-emerald-600 dark:text-emerald-400 text-right">${{ fila.total_dia }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="py-8 text-center text-gray-400 italic">No hay registros de ventas para este rango.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Totales Mensuales -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-gray-800 dark:text-white text-lg">Totales Mensuales (Histórico)</h3>
+            </div>
+            <div class="overflow-x-auto flex-1 max-h-96">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-300 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-6 font-semibold">Mes y Año</th>
+                            <th class="py-3 px-6 font-semibold">Operaciones</th>
+                            <th class="py-3 px-6 font-semibold text-right">Total Acumulado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50 text-sm">
+                        {% for mes in totales_mensuales %}
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="py-3.5 px-6 font-medium text-gray-800 dark:text-white capitalize">{{ mes.mes|date:"F Y" }}</td>
+                            <td class="py-3.5 px-6 text-gray-600 dark:text-gray-300">{{ mes.cantidad }}</td>
+                            <td class="py-3.5 px-6 font-bold text-accent text-right">${{ mes.total_mes }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="py-8 text-center text-gray-400 italic">Aún no hay meses facturados registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

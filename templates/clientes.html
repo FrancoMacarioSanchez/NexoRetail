@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    
+    <!-- Cabecera -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Clientes</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Directorio de compradores, condición fiscal y contacto.</p>
+        </div>
+        <!-- Botón que llama al modal vía HTMX -->
+        <button hx-get="{% url 'cliente_crear' %}" 
+                hx-target="#modal-container" 
+                hx-swap="innerHTML"
+                class="px-5 py-2 bg-accent text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95">
+            + Nuevo Cliente
+        </button>
+    </div>
+
+    <!-- Barra de Búsqueda (HTMX) -->
+    <form class="flex flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors"
+          hx-get="{% url 'clientes' %}" 
+          hx-target="#tabla-cuerpo" 
+          hx-trigger="input from:input delay:500ms">
+        
+        <div class="flex-1">
+            <label class="sr-only">Buscar Cliente</label>
+            <input type="text" name="q" placeholder="Buscar por Nombre o Apellido..." value="{{ query }}"
+                   class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-white focus:ring-2 focus:ring-accent outline-none transition-colors">
+        </div>
+    </form>
+
+    <!-- Contenedor de la Tabla -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-6 py-4 font-medium">Nombre / Razón Social</th>
+                        <th class="px-6 py-4 font-medium">Condición Fiscal</th>
+                        <th class="px-6 py-4 font-medium">Contacto</th>
+                        <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <!-- El body escucha el evento 'refreshTablaClientes' para auto-actualizarse tras crear/editar -->
+                <tbody id="tabla-cuerpo" 
+                       class="divide-y divide-gray-100 dark:divide-gray-700"
+                       hx-get="{% url 'clientes' %}" 
+                       hx-trigger="refreshTablaClientes from:body">
+                    {% include 'partials/tabla_clientes.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor donde se inyectará el modal de creación/edición -->
+<div id="modal-container"></div>
+
+<!-- Script global para cerrar el modal desde la vista de Django -->
+<script>
+    document.body.addEventListener('closeModal', function() {
+        document.getElementById('modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

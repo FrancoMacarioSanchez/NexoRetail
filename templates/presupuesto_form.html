@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Presupuesto | NexoRetail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { primary: '#0f172a', accent: '#2563eb' } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- Barra Superior -->
+    <header class="h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-100 text-accent flex items-center justify-center font-bold text-xl">📄</div>
+            <h1 class="text-xl font-bold text-gray-800 dark:text-white">Asistente de Presupuesto</h1>
+        </div>
+        <a href="{% url 'presupuestos' %}" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition">✕ Cancelar</a>
+    </header>
+
+    <!-- Barra de Progreso -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 shrink-0">
+        <div class="max-w-4xl mx-auto flex justify-between relative">
+            <!-- Línea conectora -->
+            <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 -z-10 transform -translate-y-1/2 rounded"></div>
+            <div class="absolute top-1/2 left-0 h-1 bg-accent -z-10 transform -translate-y-1/2 transition-all duration-300 rounded" id="progress-bar" style="width: 0%;"></div>
+
+            <!-- Pasos -->
+            <div class="step-indicator flex flex-col items-center gap-2" data-step="1">
+                <div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center font-bold shadow-md transition-colors step-circle">1</div>
+                <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Cliente</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center gap-2" data-step="2">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold transition-colors step-circle">2</div>
+                <span class="text-xs font-bold text-gray-500">Productos</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center gap-2" data-step="3">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold transition-colors step-circle">3</div>
+                <span class="text-xs font-bold text-gray-500">Envío</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center gap-2" data-step="4">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold transition-colors step-circle">4</div>
+                <span class="text-xs font-bold text-gray-500">Resumen</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Trabajo -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="max-w-4xl mx-auto">
+            <form method="POST" id="presupuesto-form">
+                {% csrf_token %}
+                
+                <!-- PASO 1: CLIENTE -->
+                <section id="seccion-1" class="wizard-step bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold mb-6">Datos del Cliente</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Seleccione el Cliente (o busque por CUIT)</label>
+                            {{ form.cliente }}
+                            <div id="cliente-detalles-container" class="mt-4"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PASO 2: PRODUCTOS -->
+                <section id="seccion-2" class="wizard-step hidden bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold mb-6">Carga de Productos</h2>
+                    
+                    <div class="relative mb-6">
+                        <input type="text" id="buscador-productos" name="q" autocomplete="off"
+                            placeholder="🔍 Escribe para buscar productos..."
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-accent"
+                            hx-get="{% url 'api_buscar_productos' %}" 
+                            hx-target="#resultados-busqueda" 
+                            hx-trigger="keyup changed delay:300ms">
+                        <div id="resultados-busqueda" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden empty:hidden"></div>
+                    </div>
+
+                    {{ formset.management_form }}
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-left" id="productos-table">
+                            <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                                <tr>
+                                    <th class="py-3 px-4 w-5/12">Producto</th>
+                                    <th class="py-3 px-4 w-2/12">Precio</th>
+                                    <th class="py-3 px-4 w-2/12">Cant.</th>
+                                    <th class="py-3 px-4 w-2/12 text-right">Subtotal</th>
+                                    <th class="py-3 px-4 w-1/12 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="formset-container" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Resumen rápido en paso 2 -->
+                    <div class="text-right mt-4 font-bold text-lg text-gray-700 dark:text-gray-300">
+                        Total Parcial: <span id="paso2-total" class="text-accent">$0.00</span>
+                    </div>
+                </section>
+
+                <!-- PASO 3: ENVÍO -->
+                <section id="seccion-3" class="wizard-step hidden bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold mb-6">Logística y Entrega</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Fecha Estimada de Entrega</label>
+                            {{ form.fecha_entrega }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Método de Envío</label>
+                            <select class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent">
+                                <option>Retiro en Corralón</option>
+                                <option>Envío a Obra (Flete Propio)</option>
+                                <option>Tercerizado</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PASO 4: RESUMEN -->
+                <section id="seccion-4" class="wizard-step hidden bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✓</div>
+                        <h2 class="text-2xl font-bold">Resumen del Presupuesto</h2>
+                        <p class="text-gray-500">Revise los datos antes de confirmar.</p>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between mb-4 pb-4 border-b border-gray-200">
+                            <span class="text-gray-600">Cliente:</span>
+                            <span id="resumen-cliente" class="font-bold text-gray-800 dark:text-white">-</span>
+                        </div>
+                        <div class="flex justify-between mb-4 pb-4 border-b border-gray-200">
+                            <span class="text-gray-600">Total de Productos:</span>
+                            <span id="resumen-items" class="font-bold text-gray-800 dark:text-white">0</span>
+                        </div>
+                        <div class="flex justify-between text-2xl font-black text-gray-800 dark:text-white">
+                            <span>TOTAL FINAL:</span>
+                            <span id="resumen-total" class="text-accent">$0.00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PLANTILLA OCULTA -->
+                <div id="empty-form-template" class="hidden">
+                    <table>
+                        <tr class="item-row">
+                            <td class="py-3 px-4">
+                                <span class="display-producto-nombre font-bold"></span>
+                                <div class="hidden">{{ formset.empty_form.producto }}</div>
+                            </td>
+                            <td class="py-3 px-4">{{ formset.empty_form.precio_unitario_historico }}</td>
+                            <td class="py-3 px-4">{{ formset.empty_form.cantidad }}</td>
+                            <td class="py-3 px-4 text-right font-mono font-bold row-subtotal">$0.00</td>
+                            <td class="py-3 px-4 text-center">
+                                <button type="button" class="text-red-500 font-bold delete-row-btn">✕</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- CONTROLES DE NAVEGACIÓN -->
+                <div class="flex justify-between mt-8">
+                    <button type="button" id="btn-prev" class="hidden px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">
+                        ← Anterior
+                    </button>
+                    <div class="ml-auto">
+                        <button type="button" id="btn-next" class="px-8 py-3 bg-accent text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg">
+                            Siguiente →
+                        </button>
+                        <button type="submit" id="btn-submit" class="hidden px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg">
+                            💾 Guardar Presupuesto
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+    // --- LÓGICA DEL WIZARD (PAGINACIÓN) ---
+    let pasoActual = 1;
+    const totalPasos = 4;
+
+    function actualizarWizard() {
+        // Mostrar/Ocultar secciones
+        document.querySelectorAll('.wizard-step').forEach((el, index) => {
+            el.classList.toggle('hidden', index + 1 !== pasoActual);
+        });
+
+        // Actualizar barra y círculos
+        document.getElementById('progress-bar').style.width = `${((pasoActual - 1) / (totalPasos - 1)) * 100}%`;
+        
+        document.querySelectorAll('.step-circle').forEach((circle, index) => {
+            const paso = index + 1;
+            if (paso <= pasoActual) {
+                circle.classList.remove('bg-gray-300', 'text-gray-600');
+                circle.classList.add('bg-accent', 'text-white');
+            } else {
+                circle.classList.add('bg-gray-300', 'text-gray-600');
+                circle.classList.remove('bg-accent', 'text-white');
+            }
+        });
+
+        // Botones de control
+        document.getElementById('btn-prev').classList.toggle('hidden', pasoActual === 1);
+        
+        if (pasoActual === totalPasos) {
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('btn-submit').classList.remove('hidden');
+            prepararResumen(); // Actualiza datos finales al llegar al final
+        } else {
+            document.getElementById('btn-next').classList.remove('hidden');
+            document.getElementById('btn-submit').classList.add('hidden');
+        }
+    }
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+        // Validaciones básicas antes de avanzar
+        if (pasoActual === 1 && !document.getElementById('id_cliente').value) {
+            alert('Por favor, seleccione un cliente primero.');
+            return;
+        }
+        if (pasoActual < totalPasos) { pasoActual++; actualizarWizard(); }
+    });
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+        if (pasoActual > 1) { pasoActual--; actualizarWizard(); }
+    });
+
+    function prepararResumen() {
+        const clienteSelect = document.getElementById('id_cliente');
+        document.getElementById('resumen-cliente').textContent = clienteSelect.options[clienteSelect.selectedIndex]?.text || '-';
+        
+        const filas = document.querySelectorAll('#formset-container .item-row').length;
+        document.getElementById('resumen-items').textContent = filas;
+    }
+
+    // --- LÓGICA DE CLIENTES ---
+    document.getElementById('id_cliente').addEventListener('change', function() {
+        const contenedor = document.getElementById('cliente-detalles-container');
+        if (!this.value) { contenedor.innerHTML = ''; return; }
+        
+        fetch(`/api/clientes/${this.value}/detalles/`)
+            .then(res => res.text())
+            .then(html => contenedor.innerHTML = html);
+    });
+
+    // --- LÓGICA DE PRODUCTOS ---
+    const totalForms = document.getElementById('id_detalles-TOTAL_FORMS'); 
+    const tableBody = document.getElementById('formset-container');
+    const buscadorInput = document.getElementById('buscador-productos');
+    const resultadosContenedor = document.getElementById('resultados-busqueda');
+
+    function agregarFilaProducto(id, nombre, precio) {
+        const currentFormCount = parseInt(totalForms.value);
+        const template = document.getElementById('empty-form-template').querySelector('tr').cloneNode(true);
+        
+        template.innerHTML = template.innerHTML.replace(/__prefix__/g, currentFormCount);
+        template.querySelector('.display-producto-nombre').textContent = nombre;
+        template.querySelector('select[name$="-producto"]').value = id;
+        
+        template.querySelector('input[name$="-precio"]').value = parseFloat(precio).toFixed(2);
+        template.querySelector('input[name$="-cantidad"]').value = 1;
+        
+        tableBody.appendChild(template);
+        totalForms.value = currentFormCount + 1;
+        
+        buscadorInput.value = '';
+        resultadosContenedor.innerHTML = '';
+        calcularTotales();
+    }
+
+    document.getElementById('presupuesto-form').addEventListener('input', function(e) {
+        if (e.target.name && (e.target.name.includes('-cantidad') || e.target.name.includes('-precio_unitario_historico'))) {
+            calcularTotales();
+        }
+    });
+
+    tableBody.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-row-btn')) {
+            e.target.closest('tr').remove();
+            calcularTotales();
+        }
+    });
+
+    function calcularTotales() {
+        let subtotalGlobal = 0;
+        document.querySelectorAll('#formset-container .item-row').forEach(row => {
+            const qty = parseFloat(row.querySelector('input[name$="-cantidad"]').value) || 0;
+            const price = parseFloat(row.querySelector('input[name$="-precio_unitario_historico"]').value) || 0;
+            const rowTotal = qty * price;
+            row.querySelector('.row-subtotal').textContent = '$' + rowTotal.toFixed(2);
+            subtotalGlobal += rowTotal;
+        });
+
+        const totalStr = '$' + subtotalGlobal.toFixed(2);
+        document.getElementById('paso2-total').textContent = totalStr;
+        document.getElementById('resumen-total').textContent = totalStr;
+    }
+
+    // Inicializar Wizard
+    actualizarWizard();
+    </script>
+</body>
+</html>

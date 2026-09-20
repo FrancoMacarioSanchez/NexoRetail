@@ -1,0 +1,68 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity" id="envio-modal-overlay">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 relative border border-gray-100 dark:border-gray-700">
+        
+        <!-- Botón Cerrar -->
+        <button onclick="document.getElementById('modal-container').innerHTML=''" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <!-- Título -->
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">
+            {% if envio %}Editar Envío{% else %}Programar Envío{% endif %} <span class="text-accent">#{{ venta.id }}</span>
+        </h3>
+
+        <!-- Formulario -->
+        <form hx-post="{% url 'envio_crear_editar' venta.id %}" id="envio-form" class="space-y-4">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Dirección -->
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Dirección de Obra/Entrega</label>
+                    {{ form.direccion_entrega }}
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Estado</label>
+                    {{ form.estado }}
+                </div>
+
+                <!-- Fecha Programada -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Fecha Programada</label>
+                    {{ form.fecha_programada }}
+                </div>
+
+                <!-- Chofer -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Chofer / Flete</label>
+                    {{ form.chofer }}
+                </div>
+
+                <!-- Vehículo / Patente -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Vehículo / Patente</label>
+                    {{ form.patente }} <!-- O {{ form.vehiculo }} dependiendo de tu modelo -->
+                </div>
+
+                <!-- Observaciones -->
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Observaciones</label>
+                    {{ form.observaciones }}
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-xl transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-5 py-2 text-sm font-bold text-white bg-accent hover:bg-blue-700 rounded-xl transition-all shadow-md shadow-blue-500/20">
+                    Guardar Envío
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS - {% if es_edicion %}Editar Presupuesto #{{ presupuesto.id }}{% else %}Crear Presupuesto{% endif %}</title>
+    
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: { colors: { accent: '#2563eb' } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 h-screen flex flex-col transition-colors duration-200">
+
+    <header class="bg-white dark:bg-gray-800 shadow-sm px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <h1 class="text-xl font-bold text-gray-800 dark:text-white">
+            🛒 {% if es_edicion %}Editando Presupuesto #{{ presupuesto.id|stringformat:"05d" }}{% else %}Nuevo Presupuesto{% endif %}
+        </h1>
+        
+        <div class="flex items-center gap-4">
+            <button id="theme-toggle" class="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none">
+                <span id="theme-toggle-light-icon" class="hidden text-sm font-medium">☀️ Modo Claro</span>
+                <span id="theme-toggle-dark-icon" class="hidden text-sm font-medium">🌙 Modo Oscuro</span>
+            </button>
+            <a href="javascript:history.back()" class="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white font-medium text-sm transition-colors">Volver al sistema</a>
+        </div>
+    </header>
+
+    <div class="flex-1 flex flex-col md:flex-row gap-4 p-4 min-h-0">
+        <!-- SECCIÓN IZQUIERDA -->
+        <div class="w-full md:w-7/12 flex flex-col gap-4 min-h-0">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm relative shrink-0 border border-gray-100 dark:border-gray-700 transition-colors">
+                <input type="text" id="pos-buscador" placeholder="🔍 Buscar por código o nombre del producto..." 
+                       autocomplete="off"
+                       class="w-full text-lg p-3 bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-accent transition-colors">
+                
+                <div id="resultados-busqueda" class="absolute z-10 w-full bg-white dark:bg-gray-800 shadow-xl rounded-b-lg mt-1 hidden border border-gray-100 dark:border-gray-700 max-h-60 overflow-y-auto left-0 transition-colors">
+                </div>
+            </div>
+            
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden flex flex-col border border-gray-100 dark:border-gray-700 transition-colors">
+                <div class="overflow-y-auto flex-1 p-2">
+                    <table class="w-full text-left" id="pos-items-table">
+                        <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600 sticky top-0 transition-colors">
+                            <tr>
+                                <th class="p-3 font-medium">Producto</th>
+                                <th class="p-3 w-24 font-medium text-center">Cant.</th>
+                                <th class="p-3 text-right font-medium">Precio Unit.</th>
+                                <th class="p-3 text-right font-medium">Subtotal</th>
+                                <th class="p-3 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="pos-items-body" class="divide-y divide-gray-100 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                    <div id="carrito-vacio" class="text-center p-10 text-gray-400 dark:text-gray-500 text-sm">
+                        El presupuesto está vacío. Busca un producto para comenzar.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DERECHA -->
+        <div class="w-full md:w-5/12 flex flex-col gap-4 min-h-0">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border-t-4 border-blue-600 border-l border-r border-b border-gray-100 dark:border-gray-700 shrink-0 transition-colors">
+                <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase tracking-wider">1. Datos del Cliente</h3>
+                
+                <select id="pos-cliente-select" onchange="renderizarCarrito()" class="w-full p-3 bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-accent transition-colors">
+                    <option value="" data-condicion="">Seleccione un cliente...</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}" data-condicion="{{ cliente.condicion_fiscal|default:'CF' }}"
+                                {% if es_edicion and presupuesto.cliente.id == cliente.id %}selected{% endif %}>
+                            {{ cliente.nombre }} {{ cliente.apellido|default:"" }} (CUIT: {{ cliente.cuit }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="text-xs text-gray-500 mt-2">* Para discriminar IVA, la condición fiscal del cliente debe contener 'INSCRIPTO' o 'RI'.</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm flex-1 flex flex-col justify-between border border-gray-100 dark:border-gray-700 transition-colors">
+                <div>
+                    <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-4 text-sm uppercase tracking-wider">2. Resumen Monetario</h3>
+                    <div class="space-y-3 font-mono text-sm">
+                        
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400 mb-2">
+                            <span>Subtotal Gravado:</span>
+                            <span id="pos-subtotal">$0.00</span>
+                        </div>
+                        
+                        <div id="pos-iva-container" class="space-y-1 border-t border-gray-100 dark:border-gray-700 pt-2">
+                            <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                <span>IVA Discriminado:</span>
+                                <span>$0.00</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4 shrink-0 transition-colors">
+                    <div class="flex justify-between items-end mb-6">
+                        <span class="text-xl font-bold text-gray-800 dark:text-gray-200">TOTAL:</span>
+                        <span id="pos-total" class="text-3xl font-black text-blue-600 dark:text-blue-400">$0.00</span>
+                    </div>
+                    
+                    <button onclick="guardarPresupuesto()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all text-lg flex justify-center items-center gap-2">
+                        <span>💾</span> {% if es_edicion %}Actualizar Presupuesto{% else %}Cerrar y Congelar Presupuesto{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% csrf_token %}
+
+    <script>
+        // MODO OSCURO (Lógica colapsada)
+        const dIcon = document.getElementById('theme-toggle-dark-icon'), lIcon = document.getElementById('theme-toggle-light-icon');
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            lIcon.classList.remove('hidden');
+        } else { dIcon.classList.remove('hidden'); }
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            dIcon.classList.toggle('hidden'); lIcon.classList.toggle('hidden');
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark'); localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark'); localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        // BUSCADOR DÍNAMICO
+        document.getElementById('pos-buscador').addEventListener('input', function(e) {
+            let query = e.target.value.trim();
+            const resultadosDiv = document.getElementById('resultados-busqueda');
+            if (query.length < 2) { resultadosDiv.classList.add('hidden'); return; }
+            fetch("{% url 'api_buscar_productos' %}?q=" + encodeURIComponent(query)) 
+            .then(response => response.text())
+            .then(html => {
+                resultadosDiv.innerHTML = html;
+                resultadosDiv.classList.remove('hidden');
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            const buscador = document.getElementById('pos-buscador');
+            const resultados = document.getElementById('resultados-busqueda');
+            if (!buscador.contains(event.target) && !resultados.contains(event.target)) {
+                resultados.classList.add('hidden');
+            }
+        });
+
+        // CARRITO Y CÁLCULOS
+        // Importante: Inicializamos el carrito con la variable JSON que mandamos desde la vista de Edición
+        let carrito = {{ detalles_iniciales|default:"[]"|safe }};
+
+        // Al cargar la página, si estamos editando (el carrito ya tiene cosas), renderizamos inmediatamente.
+        document.addEventListener('DOMContentLoaded', () => {
+            if (carrito.length > 0) {
+                renderizarCarrito();
+            }
+        });
+
+        const formatearDinero = (monto) => {
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(monto);
+        };
+
+        function agregarAlCarrito(productoId, nombre, precio, alicuota) {
+            document.getElementById('resultados-busqueda').classList.add('hidden');
+            document.getElementById('pos-buscador').value = '';
+
+            let item = carrito.find(p => p.producto_id === productoId);
+            if (item) {
+                item.cantidad += 1;
+            } else {
+                carrito.push({
+                    producto_id: productoId,
+                    nombre: nombre,
+                    precio: parseFloat(precio),
+                    alicuota: parseFloat(alicuota),
+                    cantidad: 1
+                });
+            }
+            renderizarCarrito();
+        }
+
+        function actualizarCantidad(productoId, nuevaCantidad) {
+            let item = carrito.find(p => p.producto_id === productoId);
+            if (item) {
+                let qty = parseFloat(nuevaCantidad);
+                if (qty > 0) {
+                    item.cantidad = qty;
+                } else {
+                    eliminarDelCarrito(productoId);
+                    return;
+                }
+            }
+            renderizarCarrito();
+        }
+
+        function eliminarDelCarrito(productoId) {
+            carrito = carrito.filter(p => p.producto_id !== productoId);
+            renderizarCarrito();
+        }
+
+        function renderizarCarrito() {
+            const tbody = document.getElementById('pos-items-body');
+            const msjVacio = document.getElementById('carrito-vacio');
+            const selectCliente = document.getElementById('pos-cliente-select');
+            const opcionSeleccionada = selectCliente.options[selectCliente.selectedIndex];
+            const condicionCliente = opcionSeleccionada ? (opcionSeleccionada.getAttribute('data-condicion') || '').toUpperCase() : '';
+            const discriminaIva = condicionCliente.includes('INSCRIPTO') || condicionCliente === 'RI';
+
+            tbody.innerHTML = '';
+            let subtotalMostrar = 0;
+            let totalGeneral = 0;
+            let ivaPorAlicuota = {};
+
+            if (carrito.length === 0) {
+                msjVacio.classList.remove('hidden');
+            } else {
+                msjVacio.classList.add('hidden');
+                
+                carrito.forEach(item => {
+                    let precioNeto = item.precio; 
+                    let porcentajeIva = item.alicuota / 100;
+                    let valorIvaLinea = precioNeto * porcentajeIva * item.cantidad;
+                    let subtotalNetoLinea = precioNeto * item.cantidad;
+                    let totalLinea = subtotalNetoLinea + valorIvaLinea;
+
+                    let precioFilaUI = 0, subtotalFilaUI = 0;
+
+                    if (discriminaIva) {
+                        precioFilaUI = precioNeto;
+                        subtotalFilaUI = subtotalNetoLinea;
+                        subtotalMostrar += subtotalNetoLinea;
+                        
+                        if (!ivaPorAlicuota[item.alicuota]) ivaPorAlicuota[item.alicuota] = 0;
+                        ivaPorAlicuota[item.alicuota] += valorIvaLinea;
+                    } else {
+                        let precioFinalUnitario = precioNeto * (1 + porcentajeIva);
+                        precioFilaUI = precioFinalUnitario;
+                        subtotalFilaUI = totalLinea;
+                        subtotalMostrar += totalLinea;
+                    }
+
+                    totalGeneral += totalLinea;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <td class="p-3 text-sm font-medium text-gray-800 dark:text-gray-200">${item.nombre}</td>
+                            <td class="p-3">
+                                <input type="number" step="0.5" min="0.5" value="${item.cantidad}" 
+                                       onchange="actualizarCantidad(${item.producto_id}, this.value)"
+                                       class="w-full text-center p-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-accent transition-colors">
+                            </td>
+                            <td class="p-3 text-right text-sm text-gray-600 dark:text-gray-400">${formatearDinero(precioFilaUI)}</td>
+                            <td class="p-3 text-right text-sm font-bold text-gray-800 dark:text-gray-200">${formatearDinero(subtotalFilaUI)}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="eliminarDelCarrito(${item.producto_id})" class="text-red-500 hover:text-red-700 font-bold" title="Eliminar">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('pos-subtotal').innerText = formatearDinero(subtotalMostrar);
+            document.getElementById('pos-total').innerText = formatearDinero(totalGeneral);
+
+            const ivaContainer = document.getElementById('pos-iva-container');
+            ivaContainer.innerHTML = ''; 
+
+            if (discriminaIva && Object.keys(ivaPorAlicuota).length > 0) {
+                for (const [alicuota, monto] of Object.entries(ivaPorAlicuota)) {
+                    ivaContainer.innerHTML += `
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                            <span>IVA (${alicuota}%):</span>
+                            <span>${formatearDinero(monto)}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                ivaContainer.innerHTML = `
+                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                        <span>IVA Discriminado:</span>
+                        <span>$0.00</span>
+                    </div>
+                `;
+            }
+        }
+
+        // GUARDAR O ACTUALIZAR
+        function guardarPresupuesto() {
+            const clienteId = document.getElementById('pos-cliente-select').value;
+            if (!clienteId) { alert("Por favor, seleccione un cliente."); return; }
+            if (carrito.length === 0) { alert("El presupuesto no puede estar vacío."); return; }
+
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const payload = {
+                cliente_id: clienteId,
+                detalles: carrito.map(item => ({
+                    producto_id: item.producto_id,
+                    cantidad: item.cantidad
+                }))
+            };
+
+            // URL Dinámica: Si estamos en edición hace POST a la url de edición, si no, a la de creación
+            const urlGuardar = "{% if es_edicion %}{% url 'presupuesto_editar' presupuesto.id %}{% else %}{% url 'pos_presupuesto' %}{% endif %}";
+
+            fetch(urlGuardar, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    window.location.href = `/presupuestos/${data.presupuesto_id}/`;
+                } else {
+                    alert("Hubo un error al guardar: " + JSON.stringify(data));
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un error de conexión.");
+            });
+        }
+    </script>
+</body>
+</html>
