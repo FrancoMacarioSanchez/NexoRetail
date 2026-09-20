@@ -11,17 +11,17 @@ def setup_initial_data():
     # 1. Crear el tenant público si no existe
     if not Client.objects.filter(schema_name='public').exists():
         print("Creando tenant público...")
+        
+        # Pasamos los campos obligatorios según tu modelo: schema_name y nombre
         tenant = Client(
             schema_name='public',
-            name='NexoRetail Global',
-            paid_until='2099-12-31',
-            on_trial=False
+            nombre='NexoRetail Global'
         )
         tenant.save()
 
-        # Usamos un dominio comodín para el esquema público en Render
+        # Creamos el dominio asociado (Asegúrate de poner tu URL de Render exacta aquí)
         domain = Domain(
-            domain='nexoretail.onrender.com', # Poné acá la URL que te dio Render (sin https://)
+            domain='nexoretail.onrender.com', 
             tenant=tenant,
             is_primary=True
         )
