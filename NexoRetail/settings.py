@@ -1,21 +1,27 @@
 """
 Django settings for NexoRetail project.
-Configurado para desarrollo local con PostgreSQL en Docker y Multi-Tenancy.
+Configurado para desarrollo local y producción en Render con Multi-Tenancy.
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
+
+# Cargar variables de entorno desde el archivo .env (solo aplica en local)
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getevn('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-desarrollo-por-defecto')
 
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-GEMINI_API_KEY =  os.getevn('GEMINI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Si DEBUG en el .env es "True", será verdadero, de lo contrario será False.
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -87,7 +93,7 @@ DATABASE_ROUTERS = (
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # <-- Agrega esta línea
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,9 +109,10 @@ WSGI_APPLICATION = 'NexoRetail.wsgi.application'
 
 
 # ==========================================
-# DATABASE (Conexión local a PostgreSQL en Docker)
+# DATABASE (Conexión dinámica Local/Render)
 # ==========================================
 
+# Configuración base (Local con Docker)
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
@@ -113,12 +120,24 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'postgrespassword',
         'HOST': '127.0.0.1',
-        'PORT': '5433', # <-- El nuevo puerto
+        'PORT': '5433',
     }
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# Si existe DATABASE_URL (en Render), sobrescribe la configuración base
+db_from_env = dj_database_url.config(
+    default=os.getenv('DATABASE_URL'),
+    engine='django_tenants.postgresql_backend',
+    conn_max_age=600
+)
+
+if db_from_env:
+    DATABASES['default'].update(db_from_env)
+
+
+# ==========================================
+# PASSWORD VALIDATION
+# ==========================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -136,8 +155,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# Configurado para Argentina (ideal para corralones)
+# ==========================================
+# INTERNATIONALIZATION
+# ==========================================
+
 LANGUAGE_CODE = 'es-ar'
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
@@ -145,12 +166,13 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# ==========================================
+# STATIC FILES
+# ==========================================
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/default-auto-field/
+# Directorio donde Render recolectará los archivos estáticos en producción
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
