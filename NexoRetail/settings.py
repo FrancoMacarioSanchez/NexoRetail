@@ -21,7 +21,7 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Si DEBUG en el .env es "True", será verdadero, de lo contrario será False.
-DEBUG = true #os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = True #os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['*']
 
