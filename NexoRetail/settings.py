@@ -36,27 +36,21 @@ TENANT_DOMAIN_MODEL = "customers.Domain"
 # Aplicaciones compartidas (globales)
 SHARED_APPS = [
     'django_tenants',
-    'customers', # App para gestionar los inquilinos (corralones) y sus dominios
-    
+    'customers',
     'django.contrib.contenttypes',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
 ]
 
-# Aplicaciones que se replican por cada tenant (tus módulos del SaaS)
 TENANT_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
-    
-    # Tus apps del sistema mayorista de construcción:
-    'productos',  # Inventario, Proveedores, Compras
-    'sales',     # Ventas, Presupuestos, Clientes, Envíos
-    'core',      # Empleados, Permisos, Informes
+    'django.contrib.staticfiles',
+
+    'productos',
+    'sales',
+    'core',
 ]
 
 INSTALLED_APPS = list(SHARED_APPS) + [
