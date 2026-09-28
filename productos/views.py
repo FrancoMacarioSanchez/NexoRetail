@@ -6,24 +6,25 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 from rest_framework import viewsets
 from .models import Categoria, Subcategoria, Proveedor, Producto
 from .serializers import CategoriaSerializer, SubcategoriaSerializer, ProveedorSerializer, ProductoSerializer
-
+@login_required
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
-
+@login_required
 class SubcategoriaViewSet(viewsets.ModelViewSet):
     queryset = Subcategoria.objects.all()
     serializer_class = SubcategoriaSerializer
-
+@login_required
 class ProveedorViewSet(viewsets.ModelViewSet):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer
-
+@login_required
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
@@ -33,7 +34,7 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator
 from .models import Producto, Categoria, Subcategoria
 from .forms import ProductoForm
-
+@login_required
 def inventario_view(request):
     query = request.GET.get('q', '')
     cat_id = request.GET.get('categoria', '')
@@ -77,6 +78,7 @@ def inventario_view(request):
 
 
 # Modificamos la vista existente para que acepte un ID opcional (Edición)
+@login_required
 def producto_crear_editar_view(request, pk=None):
     if pk:
         producto = get_object_or_404(Producto, pk=pk)
@@ -108,7 +110,7 @@ def producto_crear_editar_view(request, pk=None):
 from django.shortcuts import render
 from django.http import HttpResponse
 from .forms import ProductoForm
-
+@login_required
 def producto_crear_view(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
@@ -137,6 +139,7 @@ from .models import Proveedor, Categoria, Subcategoria
 from .forms import ProveedorForm, CategoriaForm, SubcategoriaForm
 
 # --- PROVEEDORES ---
+@login_required
 def proveedores_view(request):
     proveedores = Proveedor.objects.all()
     form = ProveedorForm(request.POST or None)
@@ -146,6 +149,7 @@ def proveedores_view(request):
     return render(request, 'proveedores.html', {'proveedores': proveedores, 'form': form})
 
 # --- CATEGORÍAS Y SUBCATEGORÍAS ---
+@login_required
 def categorias_view(request):
     categorias = Categoria.objects.prefetch_related('subcategorias').all()
     cat_form = CategoriaForm(request.POST or None, prefix='cat')
@@ -164,7 +168,7 @@ def categorias_view(request):
         'cat_form': cat_form,
         'sub_form': sub_form
     })
-    
+@login_required
 def proveedor_detalle_view(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     form = ProveedorForm(request.POST or None, instance=proveedor)
@@ -182,7 +186,7 @@ def proveedor_detalle_view(request, pk):
         'form': form,
         'productos_proveedor': productos_proveedor
     })
-
+@login_required
 def proveedor_eliminar_view(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     if request.method == 'POST':
@@ -191,17 +195,18 @@ def proveedor_eliminar_view(request, pk):
     return redirect('proveedor_detalle', pk=pk)
 
 # --- CATEGORÍAS Y SUBCATEGORÍAS: ELIMINAR Y EDITAR ---
+@login_required
 def categoria_eliminar_view(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
     categoria.delete()
     return redirect('categorias_list')
-
+@login_required
 def subcategoria_eliminar_view(request, pk):
     subcategoria = get_object_or_404(Subcategoria, pk=pk)
     subcategoria.delete()
     return redirect('categorias_list')
 
-
+@login_required
 def procesar_factura_ia(request):
     """Recibe la imagen/PDF, consulta a Gemini y devuelve el Modal y el Chat"""
     if request.method == 'POST' and request.FILES.get('archivo_ia'):
@@ -265,7 +270,7 @@ from django.db import transaction
 from decimal import Decimal # <-- 1. AGREGA ESTE IMPORT ARRIBA DEL TODO
 from .models import Producto
 from .forms import ProductoForm # Asegúrate de importar tu formulario
-
+@login_required
 def ingreso_stock_view(request):
     """Vista principal"""
     productos = Producto.objects.all().order_by('nombre')
@@ -275,7 +280,7 @@ def ingreso_stock_view(request):
         'productos': productos,
         'form_producto': form_nuevo_producto
     })
-
+@login_required
 def crear_producto_ajax(request):
     """Guarda el producto desde el modal sin recargar la página"""
     if request.method == 'POST':
@@ -302,7 +307,7 @@ def crear_producto_ajax(request):
             return HttpResponse("<script>alert('❌ Error: Revisa los campos obligatorios o SKUs duplicados.');</script>")
     return HttpResponse("Error", status=400)
 
-
+@login_required
 def guardar_ingreso_stock(request):
     """Guarda las filas finales en la Base de Datos"""
     if request.method == 'POST':

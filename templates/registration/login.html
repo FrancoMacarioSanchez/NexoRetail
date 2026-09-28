@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Iniciar sesión | NexoRetail</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #111827;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 420px;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 40px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #111827;
+        color: white;
+        border-radius: 15px;
+
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 26px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    input {
+        width: 100%;
+        padding: 13px 14px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+
+        font-size: 15px;
+        outline: none;
+
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+    }
+
+    .error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .error ul {
+        padding-left: 18px;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+
+        border: none;
+        border-radius: 10px;
+
+        background: #111827;
+        color: white;
+
+        font-size: 15px;
+        font-weight: 600;
+
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+        background: #1f2937;
+    }
+
+    button:active {
+        transform: scale(0.99);
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 30px 25px;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+```
+<div class="login-card">
+
+    <div class="logo">
+        NR
+    </div>
+
+    <h1>Bienvenido</h1>
+
+    <p class="subtitle">
+        Ingresá a NexoRetail
+    </p>
+
+    {% if form.errors %}
+        <div class="error">
+            <strong>Datos incorrectos</strong>
+
+            <p>
+                El usuario o la contraseña no son correctos.
+            </p>
+        </div>
+    {% endif %}
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="next"
+            value="{{ next }}"
+        >
+
+        <div class="form-group">
+            <label for="id_username">
+                Usuario
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                id="id_username"
+                autocomplete="username"
+                required
+                autofocus
+                placeholder="Ingresá tu usuario"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="id_password">
+                Contraseña
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                id="id_password"
+                autocomplete="current-password"
+                required
+                placeholder="Ingresá tu contraseña"
+            >
+        </div>
+
+        <button type="submit">
+            Iniciar sesión
+        </button>
+
+    </form>
+
+    <div class="footer">
+        NexoRetail · Sistema de gestión
+    </div>
+
+</div>
+```
+
+</div>
+
+</body>
+</html>

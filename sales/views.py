@@ -1,6 +1,6 @@
 import json
 from decimal import Decimal
-
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
@@ -18,19 +18,19 @@ from .forms import ClienteForm, PresupuestoForm, DetallePresupuestoFormSet
 # ==========================================
 # VISTAS DE API (Django Rest Framework)
 # ==========================================
-
+@login_required
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
     serializer_class = ClienteVentaSerializer
-
+@login_required
 class PresupuestoViewSet(viewsets.ModelViewSet):
     queryset = Presupuesto.objects.all()
     serializer_class = PresupuestoSerializer
-
+@login_required
 class DetallePresupuestoViewSet(viewsets.ModelViewSet):
     queryset = DetallePresupuesto.objects.all()
     serializer_class = DetallePresupuestoSerializer
-
+@login_required
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
@@ -39,7 +39,7 @@ class VentaViewSet(viewsets.ModelViewSet):
 # ==========================================
 # VISTAS DE CLIENTES (HTMX / Templates)
 # ==========================================
-
+@login_required
 def clientes_view(request):
     query = request.GET.get('q', '')
     clientes = Cliente.objects.all().order_by('-id')
@@ -61,7 +61,7 @@ def clientes_view(request):
         return render(request, 'partials/tabla_clientes.html', context)
         
     return render(request, 'clientes.html', context)
-
+@login_required
 def cliente_crear_editar_view(request, pk=None):
     if pk:
         cliente = get_object_or_404(Cliente, pk=pk)
@@ -101,7 +101,7 @@ def api_detalle_cliente(request, pk):
 # ==========================================
 # VISTAS DE PRESUPUESTOS (Gestión Clásica)
 # ==========================================
-
+@login_required
 def presupuestos_view(request):
     query = request.GET.get('q', '')
     # select_related optimiza la consulta SQL al traer al cliente junto con el presupuesto
@@ -123,7 +123,7 @@ def presupuestos_view(request):
         return render(request, 'partials/tabla_presupuestos.html', context)
         
     return render(request, 'presupuestos.html', context)
-
+@login_required
 def presupuesto_detalle_view(request, pk):
     # Prefetch optimiza la carga de la base de datos trayendo todos los detalles de una vez
     presupuesto = get_object_or_404(Presupuesto.objects.select_related('cliente', 'presupuestante').prefetch_related('detalles__producto'), pk=pk)
@@ -131,7 +131,7 @@ def presupuesto_detalle_view(request, pk):
     return render(request, 'presupuesto_detalle.html', {
         'presupuesto': presupuesto
     })
-
+@login_required
 def presupuesto_crear_view(request):
     if request.method == 'POST':
         form = PresupuestoForm(request.POST)
@@ -183,7 +183,7 @@ def presupuesto_crear_view(request):
 # ==========================================
 # VISTAS DE PRODUCTOS (Buscador Auxiliar)
 # ==========================================
-
+@login_required
 def api_buscar_productos(request):
     query = request.GET.get('q', '')
     if query:
@@ -196,8 +196,8 @@ def api_buscar_productos(request):
 
 # ==========================================
 # VISTAS POS (Point Of Sale)
-# ==========================================
-
+# ==========================================@login_required
+@login_required
 def pos_presupuesto_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -259,7 +259,7 @@ def pos_presupuesto_view(request):
     # Si es GET, mostramos la interfaz POS
     clientes = Cliente.objects.all()
     return render(request, 'pos_presupuesto.html', {'clientes': clientes})
-
+@login_required
 def actualizar_precios_presupuesto(request, presupuesto_id):
     """
     Función para el botón 'Actualizar Precios'.
@@ -289,7 +289,7 @@ def actualizar_precios_presupuesto(request, presupuesto_id):
     presupuesto.save()
     
     return redirect('presupuesto_detalle', pk=presupuesto.id)
-
+@login_required
 def presupuesto_editar_view(request, pk):
     # Obtenemos el presupuesto a editar
     presupuesto = get_object_or_404(Presupuesto, pk=pk)
@@ -383,7 +383,7 @@ from django.db import transaction
 from django.utils import timezone
 from .models import Presupuesto, Venta, DetalleVenta, Envio
 from .forms import VentaConEnvioForm
-
+@login_required
 def presupuesto_convertir_view(request, pk):
     presupuesto = get_object_or_404(Presupuesto, pk=pk)
     
@@ -488,7 +488,7 @@ from .models import Venta, Envio
 from .models import Cliente 
 
 User = get_user_model()
-
+@login_required
 def ventas_view(request):
     # 1. Capturar todos los parámetros del request
     query = request.GET.get('q', '')
@@ -551,7 +551,7 @@ def ventas_view(request):
         return render(request, 'partials/tabla_ventas.html', context)
         
     return render(request, 'ventas.html', context)
-
+@login_required
 def venta_detalle_view(request, pk):
     # Traemos la venta con sus relaciones directas para evitar consultas extra
     venta = get_object_or_404(Venta.objects.select_related('cliente', 'vendedor', 'presupuesto'), pk=pk)
@@ -569,7 +569,7 @@ def venta_detalle_view(request, pk):
 
 from .models import Envio
 from .forms import EnvioForm
-
+@login_required
 def envio_crear_editar_view(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
     # Buscamos si la venta ya tiene un envío (gracias al related_name='envio')
@@ -598,7 +598,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import Cliente, Venta
 from .forms import ClienteForm
-
+@login_required
 def cliente_detalle_view(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     
@@ -624,7 +624,7 @@ def cliente_detalle_view(request, pk):
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from .models import Envio
-
+@login_required
 def envios_pendientes_view(request):
     # Traemos todos los envíos que no estén entregados ni cancelados
     envios = Envio.objects.exclude(estado__in=['E', 'X']).select_related('venta__cliente', 'chofer', 'vehiculo').order_by('fecha_programada')
@@ -636,6 +636,7 @@ def envios_pendientes_view(request):
     return render(request, 'envios.html', context)
 
 # Vista exclusiva para HTMX: Cambia el estado y devuelve solo el badge actualizado
+@login_required
 def cambiar_estado_envio(request, pk):
     if request.method == 'POST':
         envio = get_object_or_404(Envio, pk=pk)
@@ -653,6 +654,7 @@ from .models import Vehiculo, Chofer
 from .forms import VehiculoForm, ChoferForm
 
 # --- VEHÍCULOS ---
+@login_required
 def vehiculos_view(request):
     vehiculos = Vehiculo.objects.all()
     form = VehiculoForm(request.POST or None)
@@ -662,6 +664,7 @@ def vehiculos_view(request):
     return render(request, 'vehiculos.html', {'vehiculos': vehiculos, 'form': form})
 
 # --- CHOFERES ---
+@login_required
 def choferes_view(request):
     choferes = Chofer.objects.all()
     form = ChoferForm(request.POST or None)
@@ -675,7 +678,7 @@ from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth, TruncDay
 from datetime import datetime, date
 from .models import Venta
-
+@login_required
 def informes_gerencia_view(request):
     # Obtener filtros de fecha de la URL (si el usuario los envió)
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -728,7 +731,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from .models import Venta
-
+@login_required
 def descargar_factura_pdf(request, pk):
     venta = get_object_or_404(Venta.objects.select_related('cliente', 'presupuesto'), pk=pk)
     
@@ -768,7 +771,7 @@ from productos.models import Producto
 
 # Configurar Gemini con tu API Key
 genai.configure(api_key=settings.GEMINI_API_KEY)
-
+@login_required
 def chatbot_procesar_view(request):
     if request.method == 'POST':
         mensaje_usuario = request.POST.get('mensaje', '')

@@ -5,6 +5,7 @@ from productos.views import ingreso_stock_view, procesar_factura_ia, guardar_ing
 from productos.views import inventario_view, producto_crear_view, producto_crear_editar_view, proveedores_view,categorias_view,proveedor_detalle_view, proveedor_eliminar_view, categoria_eliminar_view,subcategoria_eliminar_view
 from sales.views import clientes_view, cliente_crear_editar_view,  pos_presupuesto_view, presupuestos_view, api_detalle_cliente, api_buscar_productos, presupuesto_detalle_view, actualizar_precios_presupuesto, presupuesto_editar_view,presupuesto_convertir_view, ventas_view,venta_detalle_view, envio_crear_editar_view,cliente_detalle_view
 from sales.views import envios_pendientes_view,cambiar_estado_envio, vehiculos_view,choferes_view, informes_gerencia_view,descargar_factura_pdf,chatbot_procesar_view
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -62,4 +63,16 @@ urlpatterns = [
     path('stock/ingreso/ia/', procesar_factura_ia, name='procesar_factura_ia'),
     path('stock/ingreso/guardar/', guardar_ingreso_stock, name='guardar_ingreso_stock'),
     path('ingreso-stock/crear-ajax/', crear_producto_ajax, name='crear_producto_ajax'),
+    
+    path(
+    "login/",
+    LoginView.as_view(template_name="registration/login.html"),
+    name="login"
+    ),
+
+    path(
+        "logout/",
+        LogoutView.as_view(),
+        name="logout"
+),
 ]
