@@ -1,4 +1,11 @@
-from django.shortcuts import render
+import json
+from django.db import transaction
+import google.generativeai as genai
+from django.contrib import messages
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.conf import settings
 
 # Create your views here.
 from rest_framework import viewsets
@@ -193,3 +200,158 @@ def subcategoria_eliminar_view(request, pk):
     subcategoria = get_object_or_404(Subcategoria, pk=pk)
     subcategoria.delete()
     return redirect('categorias_list')
+
+
+def procesar_factura_ia(request):
+    """Recibe la imagen/PDF, consulta a Gemini y devuelve el Modal y el Chat"""
+    if request.method == 'POST' and request.FILES.get('archivo_ia'):
+        archivo = request.FILES['archivo_ia']
+        
+        # 1. Gemini AI
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-flash-latest')
+        prompt = """
+        Analiza esta factura/remito. Devuelve ÚNICAMENTE un array JSON válido:
+        [{"sku": "codigo o vacio", "nombre_raw": "nombre", "costo": 0.00, "cantidad": 1}]
+        """
+        
+        try:
+            response = model.generate_content(
+                [prompt, {"mime_type": archivo.content_type, "data": archivo.read()}],
+                generation_config={"response_mime_type": "application/json"}
+            )
+            datos_ia = json.loads(response.text)
+        except Exception as e:
+            return HttpResponse(f"<div class='p-3 bg-red-100 text-red-700 rounded-lg text-sm'>Error IA: {str(e)}</div>")
+
+        # 2. Cruzar con Base de Datos
+        items_detectados = []
+        productos_db = Producto.objects.all().order_by('nombre')
+        
+        for item in datos_ia:
+            sku = item.get('sku', '')
+            nombre = item.get('nombre_raw', '')
+            
+            prod_db = Producto.objects.filter(sku=sku).first() if sku else None
+            if not prod_db and nombre:
+                prod_db = Producto.objects.filter(nombre__icontains=nombre).first()
+
+            match_exacto = bool(prod_db)
+            items_detectados.append({
+                'match_exacto': match_exacto,
+                'sku': prod_db.sku if match_exacto else sku,
+                'nombre_raw': nombre,
+                'costo': item.get('costo', 0.0),
+                'precio': prod_db.precio if match_exacto else 0.0,
+                'cantidad': item.get('cantidad', 1)
+            })
+
+        return render(request, 'partials/respuesta_chat_ia.html', {
+            'items': items_detectados,
+            'productos_db': productos_db,
+            'nombre_archivo': archivo.name
+        })
+
+    return HttpResponse("Error", status=400)
+import json
+import uuid
+
+import google.generativeai as genai
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.contrib import messages
+from django.conf import settings
+from django.db import transaction
+from decimal import Decimal # <-- 1. AGREGA ESTE IMPORT ARRIBA DEL TODO
+from .models import Producto
+from .forms import ProductoForm # Asegúrate de importar tu formulario
+
+def ingreso_stock_view(request):
+    """Vista principal"""
+    productos = Producto.objects.all().order_by('nombre')
+    form_nuevo_producto = ProductoForm() # Pasamos el formulario vacío al modal
+    
+    return render(request, 'ingreso_stock.html', {
+        'productos': productos,
+        'form_producto': form_nuevo_producto
+    })
+
+def crear_producto_ajax(request):
+    """Guarda el producto desde el modal sin recargar la página"""
+    if request.method == 'POST':
+        form = ProductoForm(request.POST)
+        if form.is_valid():
+            prod = form.save()
+            # Devolvemos un script que actualiza la tabla mágicamente
+            script = f"""
+            <script>
+                // Agregar el nuevo producto a todos los <select> de la tabla
+                document.querySelectorAll('.select-producto').forEach(sel => {{
+                    let opt = new Option('[{prod.sku}] {prod.nombre}', '{prod.sku}');
+                    opt.dataset.costo = '{prod.costo}';
+                    opt.dataset.precio = '{prod.precio}';
+                    sel.add(opt);
+                }});
+                alert('✅ Producto "{prod.nombre}" creado exitosamente. Ya puedes seleccionarlo.');
+                document.getElementById('modal-nuevo-producto').style.display = 'none';
+            </script>
+            """
+            return HttpResponse(script)
+        else:
+            # Si hay error (ej: SKU duplicado), mostramos una alerta
+            return HttpResponse("<script>alert('❌ Error: Revisa los campos obligatorios o SKUs duplicados.');</script>")
+    return HttpResponse("Error", status=400)
+
+
+def guardar_ingreso_stock(request):
+    """Guarda las filas finales en la Base de Datos"""
+    if request.method == 'POST':
+        productos_data = request.POST.getlist('productos_data[]')
+        costos = request.POST.getlist('costos[]')
+        ventas = request.POST.getlist('ventas[]')
+        cantidades = request.POST.getlist('cantidades[]')
+
+        try:
+            with transaction.atomic():
+                for p_data, c_str, v_str, cant_str in zip(productos_data, costos, ventas, cantidades):
+                    
+                    # 2. CORRECCIÓN: Usamos Decimal() en lugar de float()
+                    costo = Decimal(c_str.replace(',', '.')) if c_str else Decimal('0.00')
+                    precio = Decimal(v_str.replace(',', '.')) if v_str else Decimal('0.00')
+                    cantidad = Decimal(cant_str.replace(',', '.')) if cant_str else Decimal('0.00')
+                    
+                    if cantidad <= 0: continue
+
+                    datos = p_data.split('|')
+                    modo = datos[0]
+
+                    if modo == 'EXISTENTE':
+                        sku = datos[1]
+                        if not sku: continue
+                        producto = Producto.objects.get(sku=sku)
+                        
+                        # Ahora ambos son Decimal, la suma funcionará perfectamente
+                        producto.stock_actual += cantidad
+                        if costo > 0: producto.costo = costo
+                        if precio > 0: producto.precio = precio
+                        producto.save()
+
+                    elif modo == 'NUEVO':
+                        sku = datos[1].strip() or f"PROD-{str(uuid.uuid4())[:8].upper()}"
+                        nombre = datos[2].strip()
+                        unidad = datos[3].strip() if len(datos) > 3 else 'UN'
+                        
+                        Producto.objects.create(
+                            sku=sku, 
+                            nombre=nombre, 
+                            unidad_medida=unidad,
+                            costo=costo, 
+                            precio=precio, 
+                            stock_actual=cantidad
+                        )
+
+            messages.success(request, f"¡Ingreso guardado con éxito! ({len(productos_data)} filas procesadas)")
+        except Exception as e:
+            messages.error(request, f"Error al guardar: {str(e)}")
+            
+    return redirect('ingreso_stock')

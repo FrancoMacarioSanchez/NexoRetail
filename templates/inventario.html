@@ -3,13 +3,22 @@
 {% block content %}
 <div class="space-y-6">
     
-    <!-- Cabecera -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Inventario</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona tus productos, precios y stock.</p>
-        </div>
-        <!-- Botón que llama al modal vía HTMX -->
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Inventario</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona tus productos, precios y stock.</p>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="flex gap-3">
+        <!-- Botón Ingreso de Stock (Cambiado a <a> para navegación completa) -->
+        <a href="{% url 'ingreso_stock' %}" 
+           class="px-5 py-2 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-all shadow-md active:scale-95 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            Ingresar Stock
+        </a>
+
+        <!-- Botón Nuevo Producto (Se mantiene con HTMX si usa modal) -->
         <button hx-get="{% url 'producto_crear' %}" 
                 hx-target="#modal-container" 
                 hx-swap="innerHTML"
@@ -17,6 +26,7 @@
             + Nuevo Producto
         </button>
     </div>
+</div>
 
     <!-- Barra de Filtros (HTMX) -->
 <form class="flex flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors"
