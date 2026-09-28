@@ -21,7 +21,7 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Si DEBUG en el .env es "True", será verdadero, de lo contrario será False.
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['*']
 
@@ -116,15 +116,14 @@ WSGI_APPLICATION = 'NexoRetail.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'constructora_db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgrespassword',
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'NAME': os.getenv('DB_NAME', 'corexit_retail'),
+        'USER': os.getenv('DB_USER', 'corexit'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
-# Si existe DATABASE_URL (en Render), sobrescribe la configuración base
 db_from_env = dj_database_url.config(
     default=os.getenv('DATABASE_URL'),
     engine='django_tenants.postgresql_backend',
@@ -133,7 +132,6 @@ db_from_env = dj_database_url.config(
 
 if db_from_env:
     DATABASES['default'].update(db_from_env)
-
 
 # ==========================================
 # PASSWORD VALIDATION
