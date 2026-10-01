@@ -57,6 +57,7 @@ TENANT_APPS = [
     'productos',  # Inventario, Proveedores, Compras
     'sales',     # Ventas, Presupuestos, Clientes, Envíos
     'core',      # Empleados, Permisos, Informes
+    'aidy',
 ]
 
 INSTALLED_APPS = list(SHARED_APPS) + [
@@ -168,9 +169,12 @@ USE_TZ = True
 # STATIC FILES
 # ==========================================
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-# Directorio donde Render recolectará los archivos estáticos en producción
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

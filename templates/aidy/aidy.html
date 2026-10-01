@@ -1,0 +1,344 @@
+{% load static %}
+
+<div
+    id="aidy-root"
+    class="aidy-root"
+    data-state="notch"
+    data-chat-url="/api/aidy/chat/"
+    data-file-url="/api/aidy/file/"
+>
+
+```
+<div class="aidy-shell">
+
+    <!-- =================================================
+         NOTCH
+    ================================================== -->
+
+    <div
+        class="aidy-state aidy-state-notch"
+        role="button"
+        tabindex="0"
+        aria-label="Abrir Aidy"
+    >
+
+        <div class="aidy-notch-avatar aidy-avatar-element">
+
+            <span
+                class="aidy-badge"
+                aria-hidden="true"
+            ></span>
+
+            <div class="aidy-face">
+
+                <span class="aidy-eye aidy-eye-left">
+                    <span class="aidy-eye-shine"></span>
+                </span>
+
+                <span class="aidy-eye aidy-eye-right">
+                    <span class="aidy-eye-shine"></span>
+                </span>
+
+                <span class="aidy-mouth"></span>
+
+            </div>
+
+        </div>
+
+        <span class="aidy-notch-label">
+            Aidy
+        </span>
+
+        <span
+            class="aidy-notch-status"
+            aria-hidden="true"
+        ></span>
+
+    </div>
+
+
+    <!-- =================================================
+         DYNAMIC ISLAND
+    ================================================== -->
+
+    <div class="aidy-state aidy-state-island">
+
+        <div class="aidy-island-top">
+
+            <div class="aidy-island-avatar aidy-avatar-element">
+
+                <span
+                    class="aidy-badge"
+                    aria-hidden="true"
+                ></span>
+
+                <div class="aidy-face">
+
+                    <span class="aidy-eye aidy-eye-left">
+                        <span class="aidy-eye-shine"></span>
+                    </span>
+
+                    <span class="aidy-eye aidy-eye-right">
+                        <span class="aidy-eye-shine"></span>
+                    </span>
+
+                    <span class="aidy-mouth"></span>
+
+                </div>
+
+            </div>
+
+
+            <div class="aidy-island-info">
+
+                <div class="aidy-island-title">
+                    Aidy
+                </div>
+
+                <div class="aidy-island-subtitle">
+                    ¿En qué puedo ayudarte?
+                </div>
+
+            </div>
+
+
+            <span
+                class="aidy-island-online"
+                aria-hidden="true"
+            ></span>
+
+        </div>
+
+
+        <div class="aidy-island-actions">
+
+            <button
+                type="button"
+                data-aidy-action="open"
+            >
+                Abrir asistente
+            </button>
+
+            <button
+                type="button"
+                data-aidy-action="stock"
+            >
+                Stock
+            </button>
+
+            <button
+                type="button"
+                data-aidy-action="budget"
+            >
+                Presupuesto
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         PANEL
+    ================================================== -->
+
+    <div class="aidy-state aidy-state-panel">
+
+        <header class="aidy-panel-header">
+
+            <div class="aidy-panel-identity">
+
+                <div class="aidy-panel-avatar aidy-avatar-element">
+
+                    <span
+                        class="aidy-badge"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="aidy-face">
+
+                        <span class="aidy-eye aidy-eye-left">
+                            <span class="aidy-eye-shine"></span>
+                        </span>
+
+                        <span class="aidy-eye aidy-eye-right">
+                            <span class="aidy-eye-shine"></span>
+                        </span>
+
+                        <span class="aidy-mouth"></span>
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <div class="aidy-panel-title">
+                        Aidy
+                    </div>
+
+                    <div class="aidy-panel-status">
+
+                        <span class="aidy-online-dot"></span>
+
+                        <span>
+                            Asistente inteligente
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="aidy-panel-close"
+                aria-label="Cerrar Aidy"
+                title="Cerrar"
+            >
+                ×
+            </button>
+
+        </header>
+
+
+        <!-- =================================================
+             CHAT
+        ================================================== -->
+
+        <main
+            class="aidy-panel-content"
+            aria-live="polite"
+            aria-label="Conversación con Aidy"
+        >
+
+            <div class="aidy-chat-message">
+
+                <div class="aidy-chat-avatar">
+                    A
+                </div>
+
+                <div class="aidy-chat-body">
+
+                    <div class="aidy-chat-name">
+                        Aidy
+                    </div>
+
+                    <div class="aidy-chat-bubble">
+
+                        Hola 👋
+                        <br><br>
+
+                        Soy Aidy, el asistente de
+                        NexoRetail.
+
+                        <br><br>
+
+                        Puedo ayudarte con productos,
+                        stock, presupuestos, ventas,
+                        archivos y soporte.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Indicador de procesamiento -->
+
+            <div
+                class="aidy-chat-message aidy-processing-message"
+                hidden
+            >
+
+                <div class="aidy-chat-avatar">
+                    A
+                </div>
+
+                <div class="aidy-chat-body">
+
+                    <div class="aidy-chat-name">
+                        Aidy
+                    </div>
+
+                    <div class="aidy-chat-bubble">
+
+                        <span class="aidy-processing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- =================================================
+             INPUT
+        ================================================== -->
+
+        <footer class="aidy-panel-input">
+
+            <div class="aidy-input-wrapper">
+
+                <input
+                    type="text"
+                    class="aidy-input"
+                    placeholder="Preguntale algo a Aidy..."
+                    autocomplete="off"
+                    spellcheck="true"
+                    aria-label="Mensaje para Aidy"
+                >
+
+                <button
+                    type="button"
+                    class="aidy-send"
+                    aria-label="Enviar mensaje"
+                    title="Enviar"
+                >
+                    ↑
+                </button>
+
+            </div>
+
+            <div class="aidy-input-hint">
+                Enter para enviar · Shift + Enter para nueva línea
+            </div>
+
+        </footer>
+
+
+        <!-- =================================================
+             TOAST
+        ================================================== -->
+
+        <div
+            class="aidy-toast"
+            aria-live="polite"
+        ></div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<link
+    rel="stylesheet"
+    href="{% static 'aidy/aidy.css' %}"
+>
+
+<script
+    src="{% static 'aidy/aidy.js' %}"
+    defer
+></script>

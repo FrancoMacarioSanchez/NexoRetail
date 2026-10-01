@@ -74,5 +74,9 @@ urlpatterns = [
         "logout/",
         LogoutView.as_view(),
         name="logout"
-),
+    ),
+    path(
+        "api/aidy/",
+        include("aidy.urls")
+    ),
 ]
