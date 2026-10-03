@@ -178,3 +178,9 @@ STATICFILES_DIRS = [
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+AIDY_GEMINI_MODEL = os.getenv(
+    "AIDY_GEMINI_MODEL",
+    "gemini-3.8-flash",
+)

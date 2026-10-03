@@ -910,6 +910,60 @@
         document.getElementById('modal-nuevo-producto').style.display = 'none';
     }
 
+    // Recupera el borrador extraído por Aidy. Solo rellena la tabla;
+    // el usuario debe revisar y confirmar el guardado del ingreso.
+    document.addEventListener('DOMContentLoaded', function () {
+        let draft;
+        try {
+            draft = JSON.parse(sessionStorage.getItem('aidy_document_draft') || 'null');
+        } catch (error) {
+            console.warn('[Aidy] Borrador inválido:', error);
+        }
+        if (!draft || !Array.isArray(draft.products) || !draft.products.length) return;
+        if (draft.document?.tipo !== 'factura_externa') return;
+
+        const normalize = value => (value || '').toString().trim().toLocaleLowerCase('es');
+        draft.products.forEach(product => {
+            agregarFilaManual();
+            const row = document.getElementById('tabla-principal').lastElementChild;
+            if (!row) return;
+
+            const select = row.querySelector('.select-producto');
+            const wantedCode = normalize(product.codigo);
+            const wantedName = normalize(product.nombre);
+            let match = null;
+            for (const option of select.options) {
+                const label = normalize(option.textContent);
+                if ((wantedCode && normalize(option.value) === wantedCode) ||
+                    (wantedName && label.includes(wantedName))) {
+                    match = option;
+                    break;
+                }
+            }
+
+            if (match && match.value) {
+                select.value = match.value;
+                actualizarSelect(select);
+            } else {
+                const toggle = Array.from(row.querySelectorAll("button")).find(button => (button.getAttribute("onclick") || "").includes("toggleModo(this, 'nuevo')"));
+                if (toggle) toggleModo(toggle, 'nuevo');
+                row.querySelector('.input-sku').value = product.codigo || '';
+                row.querySelector('.input-nombre').value = product.nombre || '';
+                actualizarNuevo(row.querySelector('.input-nombre'));
+            }
+
+            row.querySelector('.input-costo').value = Number(product.costo_unitario || 0).toFixed(2);
+            row.querySelector('.input-precio').value = Number(product.precio_unitario || 0).toFixed(2);
+            row.querySelector('input[name="cantidades[]"]').value = product.cantidad || 1;
+        });
+
+        sessionStorage.removeItem('aidy_document_draft');
+        const notice = document.createElement('p');
+        notice.className = 'mb-3 rounded-lg border border-violet-200 bg-violet-50 p-3 text-sm text-violet-800';
+        notice.textContent = 'Aidy cargó un borrador desde el documento. Revisá los productos, costos y cantidades antes de guardar el ingreso.';
+        document.getElementById('tabla-principal').closest('table')?.before(notice);
+    });
+
 </script>
 
 {% endblock %}

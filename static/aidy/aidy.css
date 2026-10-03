@@ -93,11 +93,6 @@
         blur(24px)
         saturate(150%);
 
-    /*
-     * Esta curva es la responsable de
-     * gran parte del efecto Dynamic Island.
-     */
-
     transition:
         width .58s cubic-bezier(.22,1,.36,1),
         height .62s cubic-bezier(.22,1,.36,1),
@@ -116,11 +111,14 @@
 .aidy-root[data-state="notch"]
 .aidy-shell {
 
-    width: 124px;
+    width:
+        124px;
 
-    height: 44px;
+    height:
+        44px;
 
-    bottom: 0;
+    bottom:
+        0;
 
     border-radius:
         18px 18px 0 0;
@@ -135,14 +133,17 @@
 .aidy-root[data-state="island"]
 .aidy-shell {
 
-    width: 310px;
+    width:
+        390px;
 
-    height: 116px;
+    height:
+        205px;
 
-    bottom: 14px;
+    bottom:
+        14px;
 
     border-radius:
-        25px;
+        26px;
 
     border:
         1px solid
@@ -162,14 +163,17 @@
 .aidy-root[data-state="panel"]
 .aidy-shell {
 
-    width: 410px;
+    width:
+        410px;
 
-    height: 570px;
+    height:
+        570px;
 
     max-width:
         calc(100vw - 24px);
 
-    bottom: 14px;
+    bottom:
+        14px;
 
     border-radius:
         27px;
@@ -194,17 +198,21 @@
 
 .aidy-state {
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: 0;
+    inset:
+        0;
 
-    opacity: 0;
+    opacity:
+        0;
 
     transform:
         scale(.94)
         translateY(9px);
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
     transition:
         opacity .25s ease,
@@ -226,13 +234,15 @@
 .aidy-root[data-state="panel"]
 .aidy-state-panel {
 
-    opacity: 1;
+    opacity:
+        1;
 
     transform:
         scale(1)
         translateY(0);
 
-    pointer-events: auto;
+    pointer-events:
+        auto;
 
 }
 
@@ -248,21 +258,27 @@
 
 }
 
+
 /* =========================================================
    AIDY FACE
 ========================================================= */
 
 .aidy-face {
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: 0;
+    inset:
+        0;
 
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
+
+    height:
+        100%;
 
     transition:
-        transform .10s linear;
+        transform .08s linear;
 
 }
 
@@ -273,12 +289,17 @@
 
 .aidy-eye {
 
-    position: absolute;
+    position:
+        absolute;
 
-    top: 39%;
+    top:
+        39%;
 
-    width: 7px;
-    height: 14px;
+    width:
+        7px;
+
+    height:
+        14px;
 
     border-radius:
         999px;
@@ -296,25 +317,24 @@
         transform .10s linear,
         border-radius .18s ease;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
 }
 
-
-/* ojo izquierdo */
 
 .aidy-eye-left {
 
-    left: 29%;
+    left:
+        29%;
 
 }
 
 
-/* ojo derecho */
-
 .aidy-eye-right {
 
-    right: 29%;
+    right:
+        29%;
 
 }
 
@@ -325,13 +345,20 @@
 
 .aidy-eye-shine {
 
-    position: absolute;
+    position:
+        absolute;
 
-    top: 2px;
-    left: 2px;
+    top:
+        2px;
 
-    width: 3px;
-    height: 4px;
+    left:
+        2px;
+
+    width:
+        3px;
+
+    height:
+        4px;
 
     border-radius:
         50%;
@@ -351,13 +378,20 @@
 
 .aidy-mouth {
 
-    position: absolute;
+    position:
+        absolute;
 
-    left: 50%;
-    top: 64%;
+    left:
+        50%;
 
-    width: 15px;
-    height: 8px;
+    top:
+        64%;
+
+    width:
+        15px;
+
+    height:
+        8px;
 
     transform:
         translateX(-50%);
@@ -389,6 +423,7 @@
 
 }
 
+
 /* =========================================================
    BLINK
 ========================================================= */
@@ -396,7 +431,8 @@
 .aidy-blink
 .aidy-eye {
 
-    height: 1px;
+    height:
+        1px;
 
 }
 
@@ -408,9 +444,11 @@
 .aidy-mouth-open
 .aidy-mouth {
 
-    width: 10px;
+    width:
+        10px;
 
-    height: 9px;
+    height:
+        9px;
 
     border-radius:
         50%;
@@ -425,9 +463,11 @@
 .aidy-thinking
 .aidy-mouth {
 
-    width: 8px;
+    width:
+        8px;
 
-    height: 8px;
+    height:
+        8px;
 
     border-radius:
         50%;
@@ -519,9 +559,11 @@
 .aidy-success
 .aidy-mouth {
 
-    width: 11px;
+    width:
+        11px;
 
-    height: 5px;
+    height:
+        5px;
 
     border-radius:
         0 0 12px 12px;
@@ -572,27 +614,41 @@
 
 .aidy-state-notch {
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    justify-content: center;
+    justify-content:
+        center;
 
-    gap: 8px;
+    gap:
+        8px;
 
-    cursor: pointer;
+    cursor:
+        pointer;
 
 }
 
 
+/* =========================================================
+   NOTCH AVATAR
+========================================================= */
+
 .aidy-notch-avatar {
 
-    position: relative;
+    position:
+        relative;
 
-    width: 27px;
-    height: 27px;
+    width:
+        27px;
 
-    flex-shrink: 0;
+    height:
+        27px;
+
+    flex-shrink:
+        0;
 
     border-radius:
         9px;
@@ -604,7 +660,8 @@
         0 3px 12px
         rgba(0,0,0,.20);
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
 }
 
@@ -628,13 +685,20 @@
 
 .aidy-notch-status {
 
-    position: absolute;
+    position:
+        absolute;
 
-    top: 7px;
-    right: 8px;
+    top:
+        7px;
 
-    width: 5px;
-    height: 5px;
+    right:
+        8px;
+
+    width:
+        5px;
+
+    height:
+        5px;
 
     border-radius:
         50%;
@@ -650,7 +714,7 @@
 
 
 /* =========================================================
-   ISLAND
+   DYNAMIC ISLAND
 ========================================================= */
 
 .aidy-state-island {
@@ -661,28 +725,49 @@
     color:
         white;
 
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
 }
 
 
+/* =========================================================
+   ISLAND HEADER
+========================================================= */
+
 .aidy-island-top {
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    gap: 10px;
+    gap:
+        10px;
+
+    flex-shrink:
+        0;
 
 }
 
 
 .aidy-island-avatar {
 
-    position: relative;
+    position:
+        relative;
 
-    width: 42px;
-    height: 42px;
+    width:
+        42px;
 
-    flex-shrink: 0;
+    height:
+        42px;
+
+    flex-shrink:
+        0;
 
     border-radius:
         13px;
@@ -694,16 +779,19 @@
         0 5px 16px
         rgba(0,0,0,.18);
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
 }
 
 
 .aidy-island-info {
 
-    flex: 1;
+    flex:
+        1;
 
-    min-width: 0;
+    min-width:
+        0;
 
 }
 
@@ -747,10 +835,14 @@
 
 .aidy-island-online {
 
-    width: 6px;
-    height: 6px;
+    width:
+        6px;
 
-    flex-shrink: 0;
+    height:
+        6px;
+
+    flex-shrink:
+        0;
 
     border-radius:
         50%;
@@ -766,73 +858,68 @@
 
 
 /* =========================================================
-   ISLAND ACTIONS
+   ISLAND STATS
 ========================================================= */
 
-.aidy-island-actions {
+.aidy-island-stats {
 
-    display: grid;
+    display:
+        grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3, minmax(0, 1fr));
 
-    gap: 6px;
+    gap:
+        7px;
 
     margin-top:
-        11px;
+        12px;
 
 }
 
 
-.aidy-island-action {
+.aidy-island-stat {
 
-    height: 28px;
+    display:
+        flex;
 
-    display: flex;
+    align-items:
+        center;
 
-    align-items: center;
+    gap:
+        7px;
 
-    justify-content: center;
+    min-width:
+        0;
 
-    gap: 5px;
+    padding:
+        8px;
 
     border:
         1px solid
-        rgba(255,255,255,.07);
+        rgba(255,255,255,.06);
 
     border-radius:
-        9px;
+        12px;
 
     background:
-        rgba(255,255,255,.07);
-
-    color:
-        rgba(255,255,255,.78);
-
-    font-size:
-        9px;
-
-    font-weight:
-        650;
-
-    cursor:
-        pointer;
+        rgba(255,255,255,.055);
 
     transition:
         background .2s ease,
-        transform .2s cubic-bezier(.22,1,.36,1),
+        transform .2s ease,
         border-color .2s ease;
 
 }
 
 
-.aidy-island-action:hover {
+.aidy-island-stat:hover {
 
     background:
-        rgba(255,255,255,.13);
+        rgba(255,255,255,.09);
 
     border-color:
-        rgba(255,255,255,.12);
+        rgba(255,255,255,.10);
 
     transform:
         translateY(-1px);
@@ -840,10 +927,237 @@
 }
 
 
-.aidy-island-action:active {
+.aidy-island-stat-icon {
+
+    width:
+        26px;
+
+    height:
+        26px;
+
+    min-width:
+        26px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255,255,255,.08);
+
+    font-size:
+        12px;
+
+}
+
+
+.aidy-island-stat-info {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    min-width:
+        0;
+
+}
+
+
+.aidy-island-stat-label {
+
+    color:
+        rgba(255,255,255,.42);
+
+    font-size:
+        8px;
+
+    line-height:
+        1.1;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+}
+
+
+.aidy-island-stat-value {
+
+    margin-top:
+        3px;
+
+    color:
+        rgba(255,255,255,.92);
+
+    font-size:
+        12px;
+
+    line-height:
+        1;
+
+    font-weight:
+        700;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+}
+
+
+/* =========================================================
+   ISLAND MINI INPUT
+========================================================= */
+
+.aidy-island-input {
+
+    width:
+        100%;
+
+    min-height:
+        36px;
+
+    margin-top:
+        10px;
+
+    padding:
+        5px 6px 5px 12px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius:
+        13px;
+
+    background:
+        rgba(255,255,255,.07);
+
+    color:
+        white;
+
+    cursor:
+        text;
+
+    text-align:
+        left;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s cubic-bezier(.22,1,.36,1);
+
+}
+
+
+.aidy-island-input:hover {
+
+    background:
+        rgba(255,255,255,.10);
+
+    border-color:
+        rgba(255,255,255,.13);
+
+}
+
+
+.aidy-island-input:active {
 
     transform:
-        scale(.96);
+        scale(.985);
+
+}
+
+
+.aidy-island-input-placeholder {
+
+    flex:
+        1;
+
+    min-width:
+        0;
+
+    color:
+        rgba(255,255,255,.43);
+
+    font-size:
+        10px;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+}
+
+
+.aidy-island-input-icon {
+
+    width:
+        25px;
+
+    height:
+        25px;
+
+    min-width:
+        25px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    color:
+        #172033;
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
 
 }
 
@@ -854,9 +1168,11 @@
 
 .aidy-state-panel {
 
-    display: flex;
+    display:
+        flex;
 
-    flex-direction: column;
+    flex-direction:
+        column;
 
     background:
         rgba(255,255,255,.98);
@@ -873,15 +1189,20 @@
 
 .aidy-panel-header {
 
-    height: 70px;
+    height:
+        70px;
 
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    justify-content: space-between;
+    justify-content:
+        space-between;
 
     padding:
         0 17px;
@@ -895,21 +1216,28 @@
 
 .aidy-panel-identity {
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    gap: 10px;
+    gap:
+        10px;
 
 }
 
 
 .aidy-panel-avatar {
 
-    position: relative;
+    position:
+        relative;
 
-    width: 39px;
-    height: 39px;
+    width:
+        39px;
+
+    height:
+        39px;
 
     border-radius:
         12px;
@@ -921,7 +1249,8 @@
         0 4px 14px
         rgba(0,0,0,.13);
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
 }
 
@@ -939,11 +1268,14 @@
 
 .aidy-panel-status {
 
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    gap: 5px;
+    gap:
+        5px;
 
     margin-top:
         2px;
@@ -959,8 +1291,11 @@
 
 .aidy-online-dot {
 
-    width: 6px;
-    height: 6px;
+    width:
+        6px;
+
+    height:
+        6px;
 
     border-radius:
         50%;
@@ -973,13 +1308,20 @@
 
 .aidy-panel-close {
 
-    width: 32px;
-    height: 32px;
+    width:
+        32px;
 
-    display: flex;
+    height:
+        32px;
 
-    align-items: center;
-    justify-content: center;
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
 
     border:
         none;
@@ -1059,8 +1401,14 @@
     display:
         flex;
 
+    align-items:
+        flex-start;
+
     gap:
         9px;
+
+    width:
+        100%;
 
     margin-bottom:
         18px;
@@ -1111,6 +1459,12 @@
     max-width:
         285px;
 
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
 }
 
 
@@ -1150,6 +1504,112 @@
 
     line-height:
         1.55;
+
+    white-space:
+        pre-wrap;
+
+    word-break:
+        break-word;
+
+}
+
+
+/* =========================================================
+   MENSAJE DEL USUARIO
+========================================================= */
+
+.aidy-chat-message.aidy-message-user {
+
+    justify-content:
+        flex-end;
+
+}
+
+
+.aidy-chat-message.aidy-message-user
+.aidy-chat-body {
+
+    align-items:
+        flex-end;
+
+}
+
+
+.aidy-chat-message.aidy-message-user
+.aidy-chat-name {
+
+    padding-right:
+        4px;
+
+}
+
+
+.aidy-chat-message.aidy-message-user
+.aidy-chat-bubble {
+
+    border-radius:
+        14px 5px 14px 14px;
+
+    background:
+        #172033;
+
+    color:
+        white;
+
+}
+
+
+.aidy-chat-message.aidy-message-user
+.aidy-chat-avatar {
+
+    order:
+        2;
+
+    background:
+        #172033;
+
+    color:
+        white;
+
+}
+
+
+/* Compatibilidad con el nombre anterior de la clase */
+
+.aidy-chat-message.aidy-user-message {
+
+    flex-direction:
+        row-reverse;
+
+}
+
+
+.aidy-chat-message.aidy-user-message
+.aidy-chat-body {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        flex-end;
+
+}
+
+
+.aidy-chat-message.aidy-user-message
+.aidy-chat-bubble {
+
+    border-radius:
+        14px 5px 14px 14px;
+
+    background:
+        #172033;
+
+    color:
+        white;
 
 }
 
@@ -1399,6 +1859,20 @@
 }
 
 
+.aidy-send:disabled {
+
+    opacity:
+        .45;
+
+    cursor:
+        default;
+
+    transform:
+        none !important;
+
+}
+
+
 .aidy-input-hint {
 
     margin-top:
@@ -1562,13 +2036,271 @@
 
 
 /* =========================================================
-   CURSOR LOOK
+   PROCESSING INDICATOR
 ========================================================= */
 
-.aidy-face {
+.aidy-processing-dots {
 
-    transition:
-        transform .08s linear;
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        4px;
+
+    height:
+        12px;
+
+}
+
+
+.aidy-processing-dots span {
+
+    width:
+        5px;
+
+    height:
+        5px;
+
+    border-radius:
+        50%;
+
+    background:
+        #94a3b8;
+
+    animation:
+        aidy-processing-dot
+        1s
+        ease-in-out
+        infinite;
+
+}
+
+
+.aidy-processing-dots span:nth-child(2) {
+
+    animation-delay:
+        .15s;
+
+}
+
+
+.aidy-processing-dots span:nth-child(3) {
+
+    animation-delay:
+        .30s;
+
+}
+
+
+@keyframes aidy-processing-dot {
+
+    0%,
+    60%,
+    100% {
+
+        transform:
+            translateY(0);
+
+        opacity:
+            .35;
+
+    }
+
+    30% {
+
+        transform:
+            translateY(-3px);
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+/* =========================================================
+   CARA — NOTCH
+========================================================= */
+
+.aidy-notch-avatar .aidy-eye {
+
+    width:
+        4px;
+
+    height:
+        8px;
+
+}
+
+
+.aidy-notch-avatar .aidy-eye-shine {
+
+    width:
+        2px;
+
+    height:
+        2px;
+
+    top:
+        1px;
+
+    left:
+        1px;
+
+}
+
+
+.aidy-notch-avatar .aidy-mouth {
+
+    width:
+        8px;
+
+    height:
+        4px;
+
+    border-width:
+        1.5px;
+
+    top:
+        64%;
+
+}
+
+
+/* =========================================================
+   CARA — DYNAMIC ISLAND
+========================================================= */
+
+.aidy-island-avatar .aidy-eye {
+
+    width:
+        6px;
+
+    height:
+        12px;
+
+}
+
+
+.aidy-island-avatar .aidy-mouth {
+
+    width:
+        13px;
+
+    height:
+        7px;
+
+    border-width:
+        2px;
+
+}
+
+
+/* =========================================================
+   CARA — PANEL
+========================================================= */
+
+.aidy-panel-avatar .aidy-eye {
+
+    width:
+        6px;
+
+    height:
+        12px;
+
+}
+
+
+.aidy-panel-avatar .aidy-mouth {
+
+    width:
+        13px;
+
+    height:
+        7px;
+
+    border-width:
+        2px;
+
+}
+
+
+/* =========================================================
+   BADGE AZUL DE AIDY
+========================================================= */
+
+.aidy-badge {
+
+    position:
+        absolute;
+
+    z-index:
+        5;
+
+    top:
+        -3px;
+
+    left:
+        -3px;
+
+    width:
+        14px;
+
+    height:
+        14px;
+
+    border-radius:
+        50%;
+
+    background:
+        #3b82f6;
+
+    box-shadow:
+        0 3px 8px
+        rgba(59,130,246,.35);
+
+}
+
+
+.aidy-notch-avatar .aidy-badge {
+
+    width:
+        8px;
+
+    height:
+        8px;
+
+    top:
+        -1px;
+
+    left:
+        -1px;
+
+}
+
+
+.aidy-island-avatar .aidy-badge {
+
+    width:
+        11px;
+
+    height:
+        11px;
+
+}
+
+
+.aidy-panel-avatar .aidy-badge {
+
+    width:
+        11px;
+
+    height:
+        11px;
 
 }
 
@@ -1579,15 +2311,17 @@
 
 @media (max-width: 600px) {
 
-
     .aidy-root[data-state="island"]
     .aidy-shell {
 
         width:
-            calc(100vw - 30px);
+            calc(100vw - 20px);
 
         max-width:
-            340px;
+            390px;
+
+        height:
+            205px;
 
     }
 
@@ -1609,6 +2343,45 @@
 
     }
 
+
+    .aidy-island-stats {
+
+        gap:
+            5px;
+
+    }
+
+
+    .aidy-island-stat {
+
+        padding:
+            7px 6px;
+
+    }
+
+
+    .aidy-island-stat-icon {
+
+        display:
+            none;
+
+    }
+
+
+    .aidy-island-stat-label {
+
+        font-size:
+            7px;
+
+    }
+
+
+    .aidy-island-stat-value {
+
+        font-size:
+            11px;
+
+    }
 
 }
 
@@ -1632,285 +2405,5 @@
             none !important;
 
     }
-
-}
-/* =========================================================
-   CARA — NOTCH
-========================================================= */
-
-.aidy-notch-avatar .aidy-eye {
-
-    width: 4px;
-    height: 8px;
-
-}
-
-.aidy-notch-avatar .aidy-eye-shine {
-
-    width: 2px;
-    height: 2px;
-
-    top: 1px;
-    left: 1px;
-
-}
-
-.aidy-notch-avatar .aidy-mouth {
-
-    width: 8px;
-    height: 4px;
-
-    border-width: 1.5px;
-
-    top: 64%;
-
-}
-
-
-/* =========================================================
-   CARA — DYNAMIC ISLAND
-========================================================= */
-
-.aidy-island-avatar .aidy-eye {
-
-    width: 6px;
-    height: 12px;
-
-}
-
-.aidy-island-avatar .aidy-mouth {
-
-    width: 13px;
-    height: 7px;
-
-    border-width: 2px;
-
-}
-
-
-/* =========================================================
-   CARA — PANEL
-========================================================= */
-
-.aidy-panel-avatar .aidy-eye {
-
-    width: 6px;
-    height: 12px;
-
-}
-
-.aidy-panel-avatar .aidy-mouth {
-
-    width: 13px;
-    height: 7px;
-
-    border-width: 2px;
-
-}
-/* =========================================================
-   BADGE AZUL DE AIDY
-========================================================= */
-
-.aidy-badge {
-
-    position: absolute;
-
-    z-index: 5;
-
-    top: -3px;
-    left: -3px;
-
-    width: 14px;
-    height: 14px;
-
-    border-radius:
-        50%;
-
-    background:
-        #3b82f6;
-
-    box-shadow:
-        0 3px 8px
-        rgba(59,130,246,.35);
-
-}
-
-
-/* notch */
-
-.aidy-notch-avatar .aidy-badge {
-
-    width: 8px;
-    height: 8px;
-
-    top: -1px;
-    left: -1px;
-
-}
-
-
-/* island */
-
-.aidy-island-avatar .aidy-badge {
-
-    width: 11px;
-    height: 11px;
-
-}
-
-
-/* panel */
-
-.aidy-panel-avatar .aidy-badge {
-
-    width: 11px;
-    height: 11px;
-
-}
-
-/* =========================================================
-PROCESSING INDICATOR
-========================================================= */
-
-.aidy-processing-dots {
-
-
-display: inline-flex;
-
-align-items: center;
-
-gap: 4px;
-
-height: 12px;
-
-
-}
-
-.aidy-processing-dots span {
-
-
-width: 5px;
-height: 5px;
-
-border-radius: 50%;
-
-background: #94a3b8;
-
-animation:
-    aidy-processing-dot
-    1s
-    ease-in-out
-    infinite;
-
-
-}
-
-.aidy-processing-dots span:nth-child(2) {
-
-
-animation-delay:
-    .15s;
-
-
-}
-
-.aidy-processing-dots span:nth-child(3) {
-
-
-animation-delay:
-    .30s;
-
-
-}
-
-@keyframes aidy-processing-dot {
-
-
-0%,
-60%,
-100% {
-
-    transform:
-        translateY(0);
-
-    opacity:
-        .35;
-
-}
-
-30% {
-
-    transform:
-        translateY(-3px);
-
-    opacity:
-        1;
-
-}
-
-
-}
-
-/* =========================================================
-MENSAJE DEL USUARIO
-========================================================= */
-
-.aidy-chat-message.aidy-user-message {
-
-
-flex-direction:
-    row-reverse;
-
-
-}
-
-.aidy-chat-message.aidy-user-message
-.aidy-chat-body {
-
-
-display:
-    flex;
-
-flex-direction:
-    column;
-
-align-items:
-    flex-end;
-
-
-}
-
-.aidy-chat-message.aidy-user-message
-.aidy-chat-bubble {
-
-
-border-radius:
-    14px 5px 14px 14px;
-
-background:
-    #172033;
-
-color:
-    white;
-
-
-}
-
-/* =========================================================
-INPUT DESHABILITADO
-========================================================= */
-
-.aidy-send:disabled {
-
-
-opacity:
-    .45;
-
-cursor:
-    default;
-
-transform:
-    none !important;
-
 
 }
